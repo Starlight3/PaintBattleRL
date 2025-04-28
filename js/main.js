@@ -17,40 +17,7 @@
         color: '#FF5EAA',
         name: 'Player 1',
         //isComputer: true
-      }),
-      /* */
-      new PB.player({
-        x: midX + 30,
-        y: midY - 30,
-        degree: 315,
-        left: 65,
-        right: 68,
-        color: '#299EFE',
-        name: 'Player 2',
-        isComputer: true,
-      }),
-      /* */
-      new PB.player({
-        x: midX - 30,
-        y: midY + 30,
-        degree: 135,
-        left: 74,
-        right: 76,
-        color: '#FDBC56',
-        name: 'Player 3',
-        isComputer: true,
-      }),
-      new PB.player({
-        x: midX + 30,
-        y: midY + 30,
-        degree: 45,
-        left: 100,
-        right: 102,
-        color: '#67DB66',
-        name: 'Player 4',
-        isComputer: true,
-      }),
-      /* */
+      })
     ];
 
   function makeImages(images, callback) {
