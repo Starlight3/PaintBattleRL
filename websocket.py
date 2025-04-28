@@ -11,7 +11,7 @@ logging.basicConfig(
 logger = logging.getLogger('battle-painters-server')
 
 class BattlePainterServer:
-    def __init__(self, host="localhost", port=8080):
+    def __init__(self, host="localhost", port=9080):
         self.host = host
         self.port = port
         # Connection storage
@@ -20,14 +20,9 @@ class BattlePainterServer:
 
     async def handler(self, websocket):
         """Handle WebSocket connections based on path"""
-        # Get path from request URI instead of websocket object
-        path = websocket.path if hasattr(websocket, 'path') else websocket.request_headers.get('Path', '')
-        
-        # If still no path, try to extract from raw_path
-        if not path and hasattr(websocket, 'raw_path'):
-            path = websocket.raw_path.decode('utf-8')
-        logger.info(f"New connection from {websocket.remote_address} on path {path}")
-        
+
+        logger.info(f"New connection from {websocket.remote_address} on path {websocket.request.path}")
+        path = websocket.request.path
         if path == "/rl-agent":
             # This is a connection from the game
             await self.game_handler(websocket)
@@ -75,7 +70,7 @@ class BattlePainterServer:
     async def start_server(self):
         """Start the WebSocket server"""
         server = await websockets.serve(
-            lambda ws, path: self.handler(ws),
+            lambda ws: self.handler(ws),
             self.host, 
             self.port
         )

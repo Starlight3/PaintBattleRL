@@ -109,7 +109,7 @@ class DQNAgent:
 
 
 class BattlePainterRL:
-    def __init__(self, server_uri="ws://localhost:8080/agent-client"):
+    def __init__(self, server_uri="ws://localhost:9080/agent-client"):
         # Game state dimensions: x, y, degree, can_draw, coverage
         self.state_size = 5
         # Actions: LEFT, RIGHT, FORWARD
