@@ -4,11 +4,9 @@
     propCanvas = document.getElementById('Prop'),
     propCtx = propCanvas.getContext('2d'),
     pause = false,
-    pickups = [],
     gameState = new PB.timer();
 
-  const GAME_INTERVAL = 90 * 1000;
-  const PICKUP_INTERVAL = 25 * 1000;
+  const GAME_INTERVAL = 90 * 1000; // 90 seconds game duration
 
   init();
   function init() {
@@ -55,34 +53,27 @@
   }
 
   function startGame() {
-    gameState.setInterval(update);
+    gameState.setInterval(update, 1000/30); // Update at 30fps
     gameState.setTimeout(endGame, GAME_INTERVAL);
-    gameState.setInterval(function() {
-      pickups.push(new PB.pickup(bounds));
-    }, PICKUP_INTERVAL);
   }
 
   function endGame() {
     gameState.stop();
     const result = getGameResult();
     propCtx.clearRect(0, 0, bounds.right, bounds.bottom);
-    const margin = 96;
-    propCtx.drawImage(
-      PB.images.scroll,
-      margin,
-      margin,
-      bounds.right - margin * 2,
-      bounds.bottom - margin * 2
-    );
-
+    
+    // Display final score
     propCtx.font = '32px Verdana';
-    const theX = bounds.right / 2 - 180;
-    result.forEach((x, i) => {
-      const theY = i * 48 + 210;
-      propCtx.fillStyle = x.color || '#000';
-      propCtx.fillText(`${x.name}:`, theX, theY);
-      propCtx.fillText(`${x.percent}% ${x.winner ? '🏆' : ''}`, theX + 250, theY);
-    });
+    propCtx.fillStyle = '#000';
+    propCtx.fillText(`Coverage: ${result[0].percent}%`, bounds.right / 2 - 120, bounds.bottom / 2);
+    
+    // Send final result to RL agent
+    if (PB.sendGameState) {
+      PB.sendGameState({
+        event: 'GAME_OVER',
+        coverage: result[0].percent
+      });
+    }
   }
 
   function updatePlayers() {
@@ -90,20 +81,6 @@
       var player = players[i];
       player.move(gameState);
       player.restrict(bounds);
-
-      if (player.canCollide) {
-        player.canCollide = false;
-        var collision = player.checkCircleCollision(players).collision,
-          j = collision.length;
-        player.canCollide = true;
-
-        if (j) {
-          for (; j--; ) {
-            collision[j].jump(gameState);
-          }
-          player.jump(gameState);
-        }
-      }
     }
   }
 
@@ -113,7 +90,8 @@
         solved = player.resolve(player.radius),
         x = player.position.x | 0,
         y = player.position.y | 0;
-      //draw image
+      
+      // Draw shadow
       propCtx.drawImage(
         PB.images.shadow,
         x - player.radius,
@@ -121,6 +99,8 @@
         player.radius * 2,
         player.radius * 2
       );
+      
+      // Draw player
       propCtx.drawImage(
         player.drawing ? PB.images.brush : PB.images.clean,
         x - player.radius,
@@ -129,55 +109,19 @@
         player.radius * 2
       );
 
-      if (player.stunned) {
-        propCtx.drawImage(
-          PB.images.plaster,
-          x - player.radius / 2,
-          y - player.radius,
-          player.radius,
-          player.radius
-        );
-      }
-
-      //draw heading direction line
+      // Draw heading direction line
       propCtx.beginPath();
       propCtx.moveTo(x, y);
       propCtx.lineTo(solved.x, solved.y);
       propCtx.stroke();
-      //draw paint
-      if (!player.canDraw()) continue;
-      ctx.fillStyle = player.color;
-      ctx.beginPath();
-      ctx.arc(player.position.x | 0, player.position.y | 0, player.radius, 0, 180 * Math.PI, false);
-      ctx.fill();
-    }
-  }
-
-  function updatePickup(pickup) {
-    var collisions = pickup.checkCircleCollision(players);
-
-    if (collisions.collision.length) {
-      pickup.get(collisions, gameState, ctx, bounds);
-      pickups.splice(pickups.indexOf(pickup), 1);
-    }
-  }
-
-  function drawPickup(pickup) {
-    propCtx.drawImage(
-      PB.images.pickup,
-      pickup.position.x - pickup.radius,
-      pickup.position.y - pickup.radius,
-      pickup.radius * 2,
-      pickup.radius * 2
-    );
-  }
-
-  function drawDebug() {
-    propCtx.fillStyle = '#f00';
-    propCtx.font = '11px Verdana';
-
-    for (var i = 0, l = gameState.moments.length; i < l; i++) {
-      propCtx.fillText(gameState.moments[i].delta | 0, 10, i * 15 + 30);
+      
+      // Draw paint
+      if (player.canDraw()) {
+        ctx.fillStyle = player.color;
+        ctx.beginPath();
+        ctx.arc(player.position.x | 0, player.position.y | 0, player.radius, 0, 180 * Math.PI, false);
+        ctx.fill();
+      }
     }
   }
 
@@ -185,11 +129,42 @@
     propCtx.clearRect(0, 0, bounds.right, bounds.bottom);
     updatePlayers();
     drawPlayers();
-    pickups.forEach(pickup => {
-      updatePickup(pickup);
-      drawPickup(pickup);
-    });
-    // drawDebug();
+    
+    // Send game state to RL agent
+    if (PB.sendGameState) {
+      const player = players[0];
+      const imageData = ctx.getImageData(0, 0, bounds.right, bounds.bottom);
+      
+      // Calculate current coverage
+      const coverage = calculateCoverage(imageData);
+      
+      // Send minimal state information (position, direction, coverage)
+      PB.sendGameState({
+        event: 'STATE_UPDATE',
+        player: {
+          x: player.position.x,
+          y: player.position.y,
+          degree: player.degree,
+          canDraw: player.canDraw()
+        },
+        coverage: coverage
+      });
+    }
+  }
+
+  function calculateCoverage(imageData) {
+    const data = imageData.data;
+    let paintedPixels = 0;
+    const totalPixels = data.length / 4;
+    
+    // Count non-transparent pixels (painted areas)
+    for (let i = 3; i < data.length; i += 4) {
+      if (data[i] > 0) {
+        paintedPixels++;
+      }
+    }
+    
+    return (paintedPixels / totalPixels) * 100;
   }
 
   function rgbToHex(r, g, b) {
@@ -218,10 +193,6 @@
     return rgbaList;
   }
 
-  function getRgbDifference([r1, g1, b1], [r2, g2, b2]) {
-    return Math.sqrt(Math.pow(r2 - r1, 2) + Math.pow(g2 - g1, 2) + Math.pow(b2 - b1, 2));
-  }
-
   function isBlack([r, g, b, a]) {
     return !r && !g && !b;
   }
@@ -231,38 +202,22 @@
     const rgbList = imageDataToRgbaList(imageData);
     const playerColors = players.map(x => hexToRgb(x.color));
     const amountOfPixels = rgbList.length;
-    const gameColors = rgbList.reduce((acc, cur) => {
-      let playerColor;
-      if (isBlack(cur)) {
-        playerColor = rgbToHex(...cur);
-      } else {
-        const colorDiffs = playerColors.map(x => ({
-          color: x,
-          difference: getRgbDifference(x, cur),
-        }));
-        const leastDiffer = colorDiffs.sort((a, b) => a.difference - b.difference)[0].color;
-        playerColor = rgbToHex(...leastDiffer);
+    
+    // Calculate painted pixels
+    let paintedPixels = 0;
+    for (let i = 0; i < rgbList.length; i++) {
+      if (!isBlack(rgbList[i])) {
+        paintedPixels++;
       }
-      if (acc[playerColor]) {
-        acc[playerColor]++;
-      } else {
-        acc[playerColor] = 1;
-      }
-      return acc;
-    }, {});
-    const result = players.map(player => ({
-      name: player.name,
-      color: player.color,
-      percent: Math.round((gameColors[player.color] * 100) / amountOfPixels),
-    }));
-    const highestScore = result.slice().sort((a, b) => b.percent - a.percent)[0].percent;
-    result.forEach(x => {
-      if (x.percent === highestScore) x.winner = true;
-    });
-    result.push({
-      name: 'Total',
-      percent: result.reduce((acc, cur) => acc + cur.percent, 0),
-    });
-    return result;
+    }
+    
+    // Calculate percentage
+    const percent = Math.round((paintedPixels * 100) / amountOfPixels);
+    
+    return [{
+      name: players[0].name,
+      color: players[0].color,
+      percent: percent
+    }];
   }
 };
