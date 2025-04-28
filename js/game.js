@@ -6,8 +6,12 @@
     pause = false,
     pickups = [],
     gameState = new PB.timer();
+    startTime = null,
+    elapsedTime = 0,
+    totalCoverage = 0;
 
-  const GAME_INTERVAL = 90 * 1000;
+
+  const GAME_INTERVAL = 60 * 1000;
   const PICKUP_INTERVAL = 25 * 1000;
 
   init();
@@ -64,7 +68,8 @@
 
   function endGame() {
     gameState.stop();
-    const result = getGameResult();
+    const coverage = calculateCoverage();
+    // const result = getGameResult();
     propCtx.clearRect(0, 0, bounds.right, bounds.bottom);
     const margin = 96;
     propCtx.drawImage(
@@ -77,11 +82,27 @@
 
     propCtx.font = '32px Verdana';
     const theX = bounds.right / 2 - 180;
-    result.forEach((x, i) => {
-      const theY = i * 48 + 210;
-      propCtx.fillStyle = x.color || '#000';
-      propCtx.fillText(`${x.name}:`, theX, theY);
-      propCtx.fillText(`${x.percent}% ${x.winner ? '🏆' : ''}`, theX + 250, theY);
+    const theY = bounds.bottom / 2;
+    
+    propCtx.fillStyle = players[0].color;
+    propCtx.fillText(`Final Coverage: ${coverage}%`, theX, theY);
+    
+    // Add restart button
+    propCtx.fillStyle = 'blue';
+    propCtx.fillRect(theX, theY + 40, 240, 50);
+    propCtx.fillStyle = 'white';
+    propCtx.fillText('Play Again', theX + 50, theY + 75);
+    
+    // Add click event listener for restart
+    propCanvas.addEventListener('click', function(e) {
+      const rect = propCanvas.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+      
+      if (clickX >= theX && clickX <= theX + 240 && 
+          clickY >= theY + 40 && clickY <= theY + 90) {
+        location.reload(); // Simple way to restart
+      }
     });
   }
 
@@ -129,15 +150,15 @@
         player.radius * 2
       );
 
-      if (player.stunned) {
-        propCtx.drawImage(
-          PB.images.plaster,
-          x - player.radius / 2,
-          y - player.radius,
-          player.radius,
-          player.radius
-        );
-      }
+      // if (player.stunned) {
+      //   propCtx.drawImage(
+      //     PB.images.plaster,
+      //     x - player.radius / 2,
+      //     y - player.radius,
+      //     player.radius,
+      //     player.radius
+      //   );
+      // }
 
       //draw heading direction line
       propCtx.beginPath();
@@ -190,6 +211,21 @@
       drawPickup(pickup);
     });
     // drawDebug();
+  }
+
+  function calculateCoverage() {
+    const imageData = ctx.getImageData(0, 0, bounds.right, bounds.bottom).data;
+    const totalPixels = imageData.length / 4;
+    let paintedPixels = 0;
+    
+    // Count non-transparent pixels (alpha > 0)
+    for (let i = 3; i < imageData.length; i += 4) {
+      if (imageData[i] > 0) {
+        paintedPixels++;
+      }
+    }
+    
+    return Math.round((paintedPixels * 100) / totalPixels);
   }
 
   function rgbToHex(r, g, b) {
