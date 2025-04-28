@@ -4,7 +4,7 @@
     propCanvas = document.getElementById('Prop'),
     propCtx = propCanvas.getContext('2d'),
     pause = false,
-    pickups = [],
+    // pickups = [],
     gameState = new PB.timer();
     startTime = null,
     elapsedTime = 0,
@@ -12,7 +12,7 @@
 
 
   const GAME_INTERVAL = 60 * 1000;
-  const PICKUP_INTERVAL = 25 * 1000;
+  // const PICKUP_INTERVAL = 25 * 1000;
 
   init();
   function init() {
@@ -62,9 +62,9 @@
     startTime = Date.now();
     gameState.setInterval(update);
     gameState.setTimeout(endGame, GAME_INTERVAL);
-    gameState.setInterval(function() {
-      pickups.push(new PB.pickup(bounds));
-    }, PICKUP_INTERVAL);
+    //gameState.setInterval(function() {
+      // pickups.push(new PB.pickup(bounds));
+    //}, PICKUP_INTERVAL);
 
     // Display timer and coverage
     gameState.setInterval(updateHUD, 500);
@@ -184,7 +184,7 @@
     }
   }
 
-  function updatePickup(pickup) {
+  /*function updatePickup(pickup) {
     var collisions = pickup.checkCircleCollision(players);
 
     if (collisions.collision.length) {
@@ -201,7 +201,7 @@
       pickup.radius * 2,
       pickup.radius * 2
     );
-  }
+  }*/
 
   function drawDebug() {
     propCtx.fillStyle = '#f00';
@@ -216,10 +216,10 @@
     propCtx.clearRect(0, 0, bounds.right, bounds.bottom);
     updatePlayers();
     drawPlayers();
-    pickups.forEach(pickup => {
+  /*  pickups.forEach(pickup => {
       updatePickup(pickup);
       drawPickup(pickup);
-    });
+    });*/
     // drawDebug();
   }
 

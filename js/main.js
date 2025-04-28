@@ -111,7 +111,7 @@
       bg: 'img/canvas.png',
       brush: 'img/brush.png',
       clean: 'img/clean.png',
-      pickup: 'img/present.png',
+      // pickup: 'img/present.png',
       plaster: 'img/plaster.png',
       scroll: 'img/scroll.png',
       shadow: 'img/shadow.png',
