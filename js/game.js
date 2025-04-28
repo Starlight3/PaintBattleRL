@@ -59,11 +59,34 @@
   }
 
   function startGame() {
+    startTime = Date.now();
     gameState.setInterval(update);
     gameState.setTimeout(endGame, GAME_INTERVAL);
     gameState.setInterval(function() {
       pickups.push(new PB.pickup(bounds));
     }, PICKUP_INTERVAL);
+
+    // Display timer and coverage
+    gameState.setInterval(updateHUD, 500);
+  }
+
+  function updateHUD() {
+    // Calculate elapsed time
+    elapsedTime = Date.now() - startTime;
+    const timeLeft = Math.max(0, GAME_INTERVAL - elapsedTime);
+    const seconds = Math.floor(timeLeft / 1000);
+    
+    // Calculate current coverage
+    totalCoverage = calculateCoverage();
+    
+    // Display HUD
+    propCtx.fillStyle = 'rgba(0,0,0,0.6)';
+    propCtx.fillRect(10, 10, 200, 60);
+    
+    propCtx.font = '16px Verdana';
+    propCtx.fillStyle = 'white';
+    propCtx.fillText(`Time: ${seconds}s`, 20, 30);
+    propCtx.fillText(`Coverage: ${totalCoverage}%`, 20, 55);
   }
 
   function endGame() {
@@ -112,19 +135,6 @@
       player.move(gameState);
       player.restrict(bounds);
 
-      if (player.canCollide) {
-        player.canCollide = false;
-        var collision = player.checkCircleCollision(players).collision,
-          j = collision.length;
-        player.canCollide = true;
-
-        if (j) {
-          for (; j--; ) {
-            collision[j].jump(gameState);
-          }
-          player.jump(gameState);
-        }
-      }
     }
   }
 
