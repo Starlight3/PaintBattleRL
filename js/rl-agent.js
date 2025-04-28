@@ -1,7 +1,7 @@
 PB.initWebSocket = function() {
     // Initialize WebSocket connection
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${wsProtocol}//${window.location.host}/rl-agent`;
+    const wsUrl = `${wsProtocol}//localhost:9080/rl-agent`;
     
     PB.socket = new WebSocket(wsUrl);
     
