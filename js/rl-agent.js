@@ -1,13 +1,26 @@
 PB.initWebSocket = function() {
     // Initialize WebSocket connection
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${wsProtocol}//${window.location.host}/rl-agent`;
+    const wsUrl = `${wsProtocol}//localhost:9080/rl-agent`;
+    // const wsUrl = `${wsProtocol}//${window.location.host}/rl-agent`;
     
     PB.socket = new WebSocket(wsUrl);
     
     PB.socket.onopen = function() {
-      console.log('WebSocket connection established');
-    };
+        console.log('WebSocket connection established');
+        
+        // Send initial state to break potential deadlock
+        PB.sendGameState({
+          event: 'INITIAL_STATE',
+          player: {
+            x: 400,  // midX
+            y: 300,  // midY
+            degree: 225,
+            canDraw: true
+          },
+          coverage: 0
+        });
+      };
     
     PB.socket.onclose = function() {
       console.log('WebSocket connection closed');

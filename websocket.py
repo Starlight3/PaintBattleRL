@@ -41,9 +41,9 @@ class BattlePainterServer:
         try:
             async for message in websocket:
                 # Forward game state to the RL agent
-                if self.agent_connection and not self.agent_connection.closed:
+                if self.agent_connection:
                     await self.agent_connection.send(message)
-                    logger.debug(f"Forwarded game state: {message[:100]}...")
+                    # logger.debug(f"Forwarded game state: {message[:100]}...")
         except websockets.exceptions.ConnectionClosed:
             logger.info("Game connection closed")
         finally:
@@ -57,7 +57,7 @@ class BattlePainterServer:
         try:
             async for message in websocket:
                 # Forward agent actions to the game
-                if self.game_connection and not self.game_connection.closed:
+                if self.game_connection:
                     await self.game_connection.send(message)
                     
                     data = json.loads(message)

@@ -1,12 +1,16 @@
-﻿PB.startGame = function(bounds, players) {
+﻿PB.FAST_MODE = true; // Enable fast mode for training
+
+PB.startGame = function(bounds, players) {
   var canvas = document.getElementById('PB'),
     ctx = canvas.getContext('2d'),
     propCanvas = document.getElementById('Prop'),
     propCtx = propCanvas.getContext('2d'),
     pause = false,
-    gameState = new PB.timer();
+    gameState = new PB.timer(),
+    frameCounter = 0;
 
-  const GAME_INTERVAL = 90 * 1000; // 90 seconds game duration
+  // Shorter game duration for faster training
+  const GAME_INTERVAL = PB.FAST_MODE ? 30 * 1000 : 90 * 1000;
 
   init();
   function init() {
@@ -14,7 +18,13 @@
     canvas.height = bounds.bottom;
     propCanvas.width = bounds.right;
     propCanvas.height = bounds.bottom;
-    countdown();
+    
+    // Skip countdown in fast mode
+    if (PB.FAST_MODE) {
+      startGame();
+    } else {
+      countdown();
+    }
 
     PB.keyHandler = function(key) {
       const space = 32;
@@ -27,6 +37,11 @@
   }
 
   function countdown() {
+    if (PB.FAST_MODE) {
+      startGame();
+      return;
+    }
+    
     let time = 3;
     const x = bounds.right / 2 - 70;
     const y = bounds.bottom / 2 + 70;
@@ -53,7 +68,9 @@
   }
 
   function startGame() {
-    gameState.setInterval(update, 1000/30); // Update at 30fps
+    // Use higher FPS in fast mode
+    const fps = PB.FAST_MODE ? 5 : 30;
+    gameState.setInterval(update, 1000/fps);
     gameState.setTimeout(endGame, GAME_INTERVAL);
   }
 
@@ -62,10 +79,12 @@
     const result = getGameResult();
     propCtx.clearRect(0, 0, bounds.right, bounds.bottom);
     
-    // Display final score
-    propCtx.font = '32px Verdana';
-    propCtx.fillStyle = '#000';
-    propCtx.fillText(`Coverage: ${result[0].percent}%`, bounds.right / 2 - 120, bounds.bottom / 2);
+    // Display final score only in normal mode
+    if (!PB.FAST_MODE) {
+      propCtx.font = '32px Verdana';
+      propCtx.fillStyle = '#000';
+      propCtx.fillText(`Coverage: ${result[0].percent}%`, bounds.right / 2 - 120, bounds.bottom / 2);
+    }
     
     // Send final result to RL agent
     if (PB.sendGameState) {
@@ -91,31 +110,35 @@
         x = player.position.x | 0,
         y = player.position.y | 0;
       
-      // Draw shadow
-      propCtx.drawImage(
-        PB.images.shadow,
-        x - player.radius,
-        y - player.radius,
-        player.radius * 2,
-        player.radius * 2
-      );
-      
-      // Draw player
-      propCtx.drawImage(
-        player.drawing ? PB.images.brush : PB.images.clean,
-        x - player.radius,
-        y - player.radius - player.imgOffset,
-        player.radius * 2,
-        player.radius * 2
-      );
+      // Only draw visuals if not in fast mode
+      // use if (!PB.FAST_MODE) to skip drawing in fast mode. if (true) to always draw
+      if (true) {
+        // Draw shadow
+        propCtx.drawImage(
+          PB.images.shadow,
+          x - player.radius,
+          y - player.radius,
+          player.radius * 2,
+          player.radius * 2
+        );
+        
+        // Draw player
+        propCtx.drawImage(
+          player.drawing ? PB.images.brush : PB.images.clean,
+          x - player.radius,
+          y - player.radius - player.imgOffset,
+          player.radius * 2,
+          player.radius * 2
+        );
 
-      // Draw heading direction line
-      propCtx.beginPath();
-      propCtx.moveTo(x, y);
-      propCtx.lineTo(solved.x, solved.y);
-      propCtx.stroke();
+        // Draw heading direction line
+        propCtx.beginPath();
+        propCtx.moveTo(x, y);
+        propCtx.lineTo(solved.x, solved.y);
+        propCtx.stroke();
+      }
       
-      // Draw paint
+      // Always draw paint (needed for coverage calculations)
       if (player.canDraw()) {
         ctx.fillStyle = player.color;
         ctx.beginPath();
@@ -130,28 +153,34 @@
     updatePlayers();
     drawPlayers();
     
-    // Send game state to RL agent
+    // Send game state to RL agent (but not every frame in fast mode)
     if (PB.sendGameState) {
-      const player = players[0];
-      const imageData = ctx.getImageData(0, 0, bounds.right, bounds.bottom);
+      frameCounter++;
       
-      // Calculate current coverage
-      const coverage = calculateCoverage(imageData);
-      
-      // Send minimal state information (position, direction, coverage)
-      PB.sendGameState({
-        event: 'STATE_UPDATE',
-        player: {
-          x: player.position.x,
-          y: player.position.y,
-          degree: player.degree,
-          canDraw: player.canDraw()
-        },
-        coverage: coverage
-      });
+      // In fast mode, only send every 3rd frame to reduce overhead
+      if (!PB.FAST_MODE || frameCounter % 1 === 0) {
+        const player = players[0];
+        const imageData = ctx.getImageData(0, 0, bounds.right, bounds.bottom);
+        
+        // Calculate current coverage
+        const coverage = calculateCoverage(imageData);
+        
+        // Send minimal state information
+        PB.sendGameState({
+          event: 'STATE_UPDATE',
+          player: {
+            x: player.position.x,
+            y: player.position.y,
+            degree: player.degree,
+            canDraw: player.canDraw()
+          },
+          coverage: coverage
+        });
+      }
     }
   }
 
+  // Rest of the functions remain the same...
   function calculateCoverage(imageData) {
     const data = imageData.data;
     let paintedPixels = 0;

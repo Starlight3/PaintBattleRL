@@ -9,6 +9,9 @@ import websockets
 import asyncio
 import json
 import math
+import glob
+import os
+import re
 
 # Set device to cuda if available, otherwise cpu
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -30,12 +33,12 @@ class DQNAgent:
     def __init__(self, state_size, action_size):
         self.state_size = state_size
         self.action_size = action_size
-        self.memory = deque(maxlen=2000)
+        self.memory = deque(maxlen=5000)  # Increased memory size
         self.gamma = 0.95    # discount rate
         self.epsilon = 1.0   # exploration rate
-        self.epsilon_min = 0.01
-        self.epsilon_decay = 0.995
-        self.learning_rate = 0.001
+        self.epsilon_min = 0.05  # Higher min epsilon
+        self.epsilon_decay = 0.99  # Slower decay
+        self.learning_rate = 0.005  # Increased learning rate
         
         # Q-Network and Target Network
         self.model = DQN(state_size, action_size).to(device)
@@ -103,21 +106,35 @@ class DQNAgent:
     def load(self, name):
         self.model.load_state_dict(torch.load(name))
         self.model.eval()
+        # Update target model with loaded weights
+        self.update_target_model()
+        print(f"Model loaded from {name}")
 
     def save(self, name):
         torch.save(self.model.state_dict(), name)
+        print(f"Model saved to {name}")
 
 
 class BattlePainterRL:
-    def __init__(self, server_uri="ws://localhost:9080/agent-client"):
+    def __init__(self, server_uri="ws://localhost:9080/agent-client", model_path=None, start_epsilon=None):
         # Game state dimensions: x, y, degree, can_draw, coverage
         self.state_size = 5
         # Actions: LEFT, RIGHT, FORWARD
         self.action_size = 3
         self.agent = DQNAgent(self.state_size, self.action_size)
-        self.batch_size = 32
+        self.batch_size = 64 # Increased from 32 to 64 for better training stability
         self.server_uri = server_uri
+        self.target_update_freq = 5  # Update every 5 episodes instead of 10
         
+        # Load model if path is provided
+        if model_path:
+            self.agent.load(model_path)
+            
+            # Optionally set epsilon (exploration rate) if provided
+            if start_epsilon is not None:
+                self.agent.epsilon = start_epsilon
+                print(f"Set epsilon to {start_epsilon}")
+
         # Game bounds
         self.bounds = {
             "top": 0,
@@ -140,6 +157,14 @@ class BattlePainterRL:
         
         # For saving best models
         self.best_coverage = 0
+        
+        # Extract episode number from model path if available
+        if model_path:
+            match = re.search(r'battle_painter_model_(\d+)_(\d+)\.pt', model_path)
+            if match:
+                self.episode = int(match.group(1)) + 1
+                self.best_coverage = int(match.group(2)) / 100
+                print(f"Starting from episode {self.episode} with best coverage {self.best_coverage*100:.2f}%")
 
     def process_state(self, game_data):
         """Process game state data into a format for the neural network"""
@@ -193,7 +218,8 @@ class BattlePainterRL:
                         # Receive game state
                         message = await websocket.recv()
                         game_data = json.loads(message)
-                        
+                        print (game_data)
+
                         # Process game state
                         if game_data["event"] == "STATE_UPDATE":
                             self.current_state = self.process_state(game_data)
@@ -205,8 +231,8 @@ class BattlePainterRL:
                                 self.agent.remember(self.previous_state, self.previous_action, reward, 
                                                    self.current_state, self.done)
                                 
-                                # Train the model with batch experiences
-                                if len(self.agent.memory) > self.batch_size:
+                                # Train more frequently - lower threshold for training
+                                if len(self.agent.memory) > self.batch_size // 2:
                                     self.agent.replay(self.batch_size)
                             
                             # Choose action based on current state
@@ -241,8 +267,8 @@ class BattlePainterRL:
                                 self.agent.save(f"battle_painter_model_{self.episode}_{int(final_coverage * 100)}.pt")
                                 print(f"New best model saved with coverage {final_coverage * 100:.2f}%")
                             
-                            # Update target model periodically
-                            if self.episode % 10 == 0:
+                            # Update target model more frequently
+                            if self.episode % self.target_update_freq == 0:
                                 self.agent.update_target_model()
                                 print("Target model updated")
                             
@@ -265,8 +291,50 @@ class BattlePainterRL:
         asyncio.run(self.game_loop())
 
 
-# Run the agent
+def find_best_model():
+    """Find the best model based on coverage percentage in the filename"""
+    model_files = glob.glob("battle_painter_model_*.pt")
+    if not model_files:
+        print("No saved models found.")
+        return None
+    
+    best_model = None
+    best_coverage = -1
+    best_episode = -1
+    
+    for model_file in model_files:
+        match = re.search(r'battle_painter_model_(\d+)_(\d+)\.pt', model_file)
+        if match:
+            episode = int(match.group(1))
+            coverage = int(match.group(2))
+            
+            if coverage > best_coverage or (coverage == best_coverage and episode > best_episode):
+                best_coverage = coverage
+                best_episode = episode
+                best_model = model_file
+    
+    if best_model:
+        print(f"Found best model: {best_model} with coverage {best_coverage}%")
+    return best_model
+
+
 if __name__ == "__main__":
-    # Can specify a different WebSocket URI if needed
-    battle_painter_rl = BattlePainterRL()
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='Battle Painter RL Agent')
+    parser.add_argument('--model', type=str, help='Path to the model file to load')
+    parser.add_argument('--server', type=str, default='ws://localhost:9080/agent-client', 
+                        help='WebSocket server URI')
+    args = parser.parse_args()
+    
+    # If no model specified, try to find the best one
+    model_path = args.model
+    if not model_path:
+        model_path = find_best_model()
+    
+    # Create and run the agent
+    battle_painter_rl = BattlePainterRL(
+        server_uri=args.server,
+        model_path=model_path,
+    )
     battle_painter_rl.run()
