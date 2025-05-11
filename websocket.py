@@ -41,6 +41,7 @@ class BattlePainterServer:
         try:
             async for message in websocket:
                 # Forward game state to the RL agent
+                #print(message)
                 if self.agent_connection:
                     await self.agent_connection.send(message)
                     # logger.debug(f"Forwarded game state: {message[:100]}...")
