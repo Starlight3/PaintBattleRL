@@ -75,12 +75,36 @@
     init
   );
 
+  function drawGrid(ctx, width, height, gridSize) {
+    ctx.strokeStyle = '#cccccc'; // Light gray color for grid lines
+    ctx.lineWidth = 1;
+
+    // Draw vertical lines
+    for (let x = 0; x <= width; x += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+    }
+
+    // Draw horizontal lines
+    for (let y = 0; y <= height; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+    }
+  }
+
   function drawBackground() {
     var bgCanvas = document.getElementById('BG'),
       bgCtx = bgCanvas.getContext('2d');
     bgCanvas.width = bounds.right;
     bgCanvas.height = bounds.bottom;
     bgCtx.drawImage(PB.images.bg, 0, 0, bounds.right, bounds.bottom);
+
+    // Draw grid lines
+    drawGrid(bgCtx, bounds.right, bounds.bottom, 30); // Adjust grid size if needed
   }
 
   function init(images) {

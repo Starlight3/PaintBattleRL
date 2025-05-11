@@ -10,7 +10,7 @@ PB.startGame = function(bounds, players) {
     frameCounter = 0;
 
   // Shorter game duration for faster training
-  const GAME_INTERVAL = PB.FAST_MODE ? 30 * 1000 : 90 * 1000;
+  const GAME_INTERVAL = PB.FAST_MODE ? 10 * 1000 : 90 * 1000;
 
   init();
   function init() {
@@ -69,7 +69,7 @@ PB.startGame = function(bounds, players) {
 
   function startGame() {
     // Use higher FPS in fast mode
-    const fps = PB.FAST_MODE ? 5 : 30;
+    const fps = PB.FAST_MODE ? 10 : 30;
     gameState.setInterval(update, 1000/fps);
     gameState.setTimeout(endGame, GAME_INTERVAL);
   }

@@ -116,15 +116,21 @@ class DQNAgent:
 
 
 class BattlePainterRL:
-    def __init__(self, server_uri="ws://localhost:9080/agent-client", model_path=None, start_epsilon=None):
+    def __init__(self, server_uri="ws://localhost:9080/agent-client", model_path=None, start_epsilon=None, grid_size=30):
         # Game state dimensions: x, y, degree, can_draw, coverage
-        self.state_size = 5
+        self.state_size = 6
         # Actions: LEFT, RIGHT, FORWARD
         self.action_size = 3
         self.agent = DQNAgent(self.state_size, self.action_size)
         self.batch_size = 64 # Increased from 32 to 64 for better training stability
         self.server_uri = server_uri
         self.target_update_freq = 5  # Update every 5 episodes instead of 10
+        self.grid_size = grid_size
+        #self.grid = np.zeros((grid_size, grid_size), dtype=np.float32)
+        self.grid = np.zeros((self.grid_size, self.grid_size), dtype=np.float32)
+        self.bounds = {"left": 0, "right": 100, "top": 0, "bottom": 100}  # Adjust if needed
+        #self.state_size = 5  # Based on the number of features in your state
+        self.state_size = 6  # because now state includes 6 values
         
         # Load model if path is provided
         if model_path:
@@ -166,22 +172,79 @@ class BattlePainterRL:
                 self.best_coverage = int(match.group(2)) / 100
                 print(f"Starting from episode {self.episode} with best coverage {self.best_coverage*100:.2f}%")
 
+    def get_grid_coordinates(self, x, y, bounds, grid_size):
+        """
+        Maps the player's (x, y) position to grid coordinates.
+
+        Parameters:
+        - x (float): Player's x-coordinate.
+        - y (float): Player's y-coordinate.
+        - bounds (dict): Dictionary with 'left', 'right', 'top', 'bottom' keys.
+        - grid_size (int): Size of the grid (e.g., 5 for a 5x5 grid).
+
+        Returns:
+        - tuple: (row, col) indices in the grid.
+        """
+        # Normalize the player's position within the bounds
+        norm_x = (x - bounds["left"]) / (bounds["right"] - bounds["left"])
+        norm_y = (y - bounds["top"]) / (bounds["bottom"] - bounds["top"])
+
+        # Calculate grid indices
+        col = int(norm_x * grid_size)
+        row = int(norm_y * grid_size)
+
+        # Ensure indices are within grid bounds
+        col = min(max(col, 0), grid_size - 1)
+        row = min(max(row, 0), grid_size - 1)
+
+        return row, col
+    
     def process_state(self, game_data):
-        """Process game state data into a format for the neural network"""
         if game_data["event"] == "STATE_UPDATE":
             player = game_data["player"]
-            # Normalize values to [0,1] range
-            x = player["x"] / self.bounds["right"]
-            y = player["y"] / self.bounds["bottom"]
-            # Normalize degree to [0,1]
+            x = player["x"]
+            y = player["y"]
             degree = player["degree"] / 360.0
             can_draw = 1.0 if player["canDraw"] else 0.0
-            coverage = game_data["coverage"] / 100.0  # Normalize to [0,1]
-            
-            return np.reshape([x, y, degree, can_draw, coverage], [1, self.state_size])
-        
-        return None
+            coverage = game_data["coverage"] / 100.0
 
+            # Get grid coordinates
+            row, col = self.get_grid_coordinates(x, y, self.bounds, self.grid_size)
+
+            # Retrieve the grid value at the player's location
+            grid_value = self.grid[row, col]
+
+            # Optionally update the grid if player is drawing
+            if player["canDraw"]:
+                self.grid[row, col] = 1.0  # Mark it as painted
+
+            # Compose the state including grid value
+            state = [x / self.bounds["right"], 
+                    y / self.bounds["bottom"], 
+                    degree, 
+                    can_draw, 
+                    coverage, 
+                    grid_value]
+
+            return np.reshape(state, [1, len(state)])
+
+        return None
+        
+    def coverage(self, grid):
+        # If grid is a torch tensor, convert to numpy
+        if not isinstance(grid, np.ndarray):
+            grid = grid.cpu().numpy()
+
+        # If grid has 3 channels (e.g., RGB), consider a cell filled if any channel is non-zero
+        if len(grid.shape) == 3:
+            filled = (grid.sum(axis=2) != 0).sum()
+        else:
+            # For single-channel grid
+            filled = (grid != 0).sum()
+
+        total = grid.shape[0] * grid.shape[1]
+        return (filled / total) * 100
+    
     def get_action_from_index(self, action_index):
         """Convert action index to action command"""
         actions = ["LEFT", "RIGHT", "FORWARD"]
@@ -223,7 +286,9 @@ class BattlePainterRL:
                         # Process game state
                         if game_data["event"] == "STATE_UPDATE":
                             self.current_state = self.process_state(game_data)
-                            self.current_coverage = game_data["coverage"] / 100.0
+                            #self.current_coverage = game_data["coverage"] / 100.0
+                            self.current_coverage = self.coverage(self.current_state)
+
                             
                             # If we have a previous state, we can learn from it
                             if self.previous_state is not None and self.previous_action is not None:
