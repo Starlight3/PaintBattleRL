@@ -69,7 +69,7 @@ PB.startGame = function(bounds, players) {
 
   function startGame() {
     // Use higher FPS in fast mode
-    const fps = PB.FAST_MODE ? 5 : 30;
+    const fps = PB.FAST_MODE ? 10 : 30;
     gameState.setInterval(update, 1000/fps);
     gameState.setTimeout(endGame, GAME_INTERVAL);
   }
