@@ -17,7 +17,7 @@ logger = logging.getLogger('headless-battle-painters')
 class HeadlessBattlePainters:
     """A headless version of the Battle Painters game for fast RL training"""
     
-    def __init__(self, game_duration=600, fast_mode=True):
+    def __init__(self, game_duration=60000, fast_mode=True):
         # Game constants
         self.bounds = {"top": 0, "right": 800, "bottom": 600, "left": 0}
         self.player_radius = 25
@@ -61,7 +61,8 @@ class HeadlessBattlePainters:
         logger.info("Setting up WebSocket server...")
         
         # Create handler to process websocket connections
-        async def handler(websocket, path):
+        async def handler(websocket):
+            path = websocket.request.path
             logger.info(f"Received connection on path: {path}")
             if path == "/agent-client":
                 await self.handler(websocket)
@@ -132,6 +133,7 @@ class HeadlessBattlePainters:
     
     def apply_action(self, action):
         """Apply the agent's action to the game state"""
+        # print (action)
         if action == "LEFT":
             self.player["degree"] = (self.player["degree"] - self.turn_speed) % 360
         elif action == "RIGHT":
@@ -305,7 +307,7 @@ async def main():
 if __name__ == "__main__":
     try:
         asyncio.run(main())
-    except KeyboardInterrupt:
+    except KeyboardInterrupt: 
         logger.info("Server shutdown requested")
     except Exception as e:
         logger.error(f"Unhandled exception: {e}", exc_info=True)
