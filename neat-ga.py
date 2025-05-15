@@ -12,32 +12,56 @@ ACTION_SIZE = 3
 BOUNDS = {"top": 0, "right": 800, "bottom": 600, "left": 0}
 ACTIONS = ["LEFT", "RIGHT", "FORWARD"]
 
-# Process state with 5 features (no dx, dy)
-def process_state_5(game_data):
+# Grid setup
+GRID_ROWS = 30
+GRID_COLS = 30
+CELL_WIDTH = BOUNDS["right"] / GRID_COLS
+CELL_HEIGHT = BOUNDS["bottom"] / GRID_ROWS
+
+# Grid-based state processing
+def process_state_grid(game_data, visited_cells):
     player = game_data["player"]
-    x = player["x"] / BOUNDS["right"]
-    y = player["y"] / BOUNDS["bottom"]
+    x = player["x"]
+    y = player["y"]
+
+    # Convert position to grid cell
+    grid_x = int(x // CELL_WIDTH)
+    grid_y = int(y // CELL_HEIGHT)
+
+    # Normalize grid position
+    norm_x = grid_x / GRID_COLS
+    norm_y = grid_y / GRID_ROWS
+
     degree = player["degree"] / 360.0
     can_draw = 1.0 if player["canDraw"] else 0.0
-    coverage = game_data["coverage"] / 100.0
-    return [x, y, degree, can_draw, coverage]
+
+    visited_cells.add((grid_x, grid_y))
+    coverage_ratio = len(visited_cells) / (GRID_ROWS * GRID_COLS)
+
+    return [norm_x, norm_y, degree, can_draw, coverage_ratio]
 
 # Evaluate a genome
 async def evaluate_genome(genome, config, server_uri):
     net = neat.nn.FeedForwardNetwork.create(genome, config)
+    visited_cells = set()
+
     try:
         async with websockets.connect(server_uri) as websocket:
             await websocket.send(json.dumps({"action": "RESET"}))
             while True:
                 message = await websocket.recv()
                 data = json.loads(message)
+
                 if data["event"] == "STATE_UPDATE":
-                    state = process_state_5(data)
+                    state = process_state_grid(data, visited_cells)
                     output = net.activate(state)
                     action_index = int(np.argmax(output))
                     await websocket.send(json.dumps({"action": ACTIONS[action_index]}))
+
                 elif data["event"] == "GAME_OVER":
-                    return data["coverage"]
+                    # Fitness: number of unique cells visited (coverage)
+                    return len(visited_cells) / (GRID_ROWS * GRID_COLS)
+
     except Exception as e:
         print(f"Error during evaluation: {e}")
         return 0.0
@@ -99,19 +123,24 @@ def run_best_genome():
         genome = pickle.load(f)
     net = neat.nn.FeedForwardNetwork.create(genome, config)
 
+    visited_cells = set()
+
     async def play():
         async with websockets.connect("ws://localhost:9080/agent-client") as websocket:
             await websocket.send(json.dumps({"action": "RESET"}))
             while True:
                 message = await websocket.recv()
                 data = json.loads(message)
+
                 if data["event"] == "STATE_UPDATE":
-                    state = process_state_5(data)
+                    state = process_state_grid(data, visited_cells)
                     output = net.activate(state)
                     action_index = int(np.argmax(output))
                     await websocket.send(json.dumps({"action": ACTIONS[action_index]}))
+
                 elif data["event"] == "GAME_OVER":
-                    print(f"Coverage: {data['coverage']}%")
+                    print(f"Coverage (grid cells): {len(visited_cells)} out of {GRID_ROWS * GRID_COLS}")
+                    print(f"Coverage ratio: {len(visited_cells) / (GRID_ROWS * GRID_COLS) * 100:.2f}%")
                     break
 
     asyncio.run(play())

@@ -36,21 +36,75 @@ def set_flat_weights(model, flat):
         param.data.copy_(flat[pointer:pointer + numel].view(param.size()))
         pointer += numel
 
+# Get grid coordinates
+def get_grid_coordinates(x, y, bounds, grid_size):
+    """
+    Maps the player's (x, y) position to grid coordinates.
+    """
+    # Normalize the player's position within the bounds
+    norm_x = (x - bounds["left"]) / (bounds["right"] - bounds["left"])
+    norm_y = (y - bounds["top"]) / (bounds["bottom"] - bounds["top"])
+
+    # Calculate grid indices
+    col = int(norm_x * grid_size)
+    row = int(norm_y * grid_size)
+
+    # Ensure indices are within grid bounds
+    col = min(max(col, 0), grid_size - 1)
+    row = min(max(row, 0), grid_size - 1)
+
+    return row, col
+
+# Coverage calculation
+def coverage(grid):
+    """
+    Computes the percentage of covered cells in the grid.
+    """
+    # If grid is a torch tensor, convert to numpy
+    if not isinstance(grid, np.ndarray):
+        grid = grid.cpu().numpy()
+
+    # If grid has 3 channels (e.g., RGB), consider a cell filled if any channel is non-zero
+    if len(grid.shape) == 3:
+        filled = (grid.sum(axis=2) != 0).sum()
+    else:
+        # For single-channel grid
+        filled = (grid != 0).sum()
+
+    total = grid.shape[0] * grid.shape[1]
+    return (filled / total) * 100
+
 # Process game state
 prev_pos = [0.0, 0.0]
+GRID_SIZE = 30  # Example grid size
 
 def process_state(game_data, bounds):
-    global prev_pos
+    global prev_pos, grid
+
     player = game_data["player"]
-    x = player["x"] / bounds["right"]
-    y = player["y"] / bounds["bottom"]
+    x = player["x"]
+    y = player["y"]
+
+    # Get the grid coordinates
+    row, col = get_grid_coordinates(x, y, bounds, GRID_SIZE)
+
+    # Update grid (mark the cell as visited)
+    grid[row, col] = 1
+
+    # Calculate the change in position
     dx = x - prev_pos[0]
     dy = y - prev_pos[1]
     prev_pos = [x, y]
+
+    # Calculate the degree and whether the player can draw
     degree = player["degree"] / 360.0
     can_draw = 1.0 if player["canDraw"] else 0.0
-    coverage = game_data["coverage"] / 100.0
-    return np.array([x, y, dx, dy, degree, can_draw, coverage], dtype=np.float32)
+
+    # Compute the coverage
+    coverage_value = coverage(grid)
+
+    # Return the state vector including coverage
+    return np.array([x, y, dx, dy, degree, can_draw, coverage_value], dtype=np.float32)
 
 # Get action
 def select_action(model, state):
@@ -66,10 +120,13 @@ async def evaluate(weights, server_uri, bounds):
     model = GAAgentNN(state_size, action_size).to(device)
     set_flat_weights(model, torch.tensor(weights, dtype=torch.float32))
 
+    # Initialize the grid (empty)
+    global grid
+    grid = np.zeros((GRID_SIZE, GRID_SIZE), dtype=np.uint8)
+
     try:
         async with websockets.connect(server_uri) as websocket:
             await websocket.send(json.dumps({"action": "RESET"}))
-            coverage = 0.0
             while True:
                 message = await websocket.recv()
                 data = json.loads(message)

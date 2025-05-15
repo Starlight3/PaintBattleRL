@@ -1,11 +1,10 @@
-# Updated GA-based BattlePainter Agent with fitness penalties instead of random actions
+# GA-based BattlePainter Agent with grid-cell-based coverage tracking
 import numpy as np
 import random
 import websockets
 import asyncio
 import json
 
-# Genetic Algorithm for BattlePainter
 class GAAgent:
     def __init__(self, state_size, action_size, population_size=10, mutation_rate=0.01, generations=10):
         self.state_size = state_size
@@ -28,7 +27,7 @@ class GAAgent:
         mutation = np.random.randn(*policy.shape) * self.mutation_rate
         return policy + mutation
 
-    def crossover(self, parent1, parent2):  # One-point crossover
+    def crossover(self, parent1, parent2):
         flat1 = parent1.flatten()
         flat2 = parent2.flatten()
         point = random.randint(1, len(flat1) - 1)
@@ -62,17 +61,24 @@ class BattlePainterGA:
         self.server_uri = server_uri
         self.bounds = {"top": 0, "right": 800, "bottom": 600, "left": 0}
         self.current_state = None
-        self.current_coverage = 0
         self.done = False
         self.generation = 0
         self.individual = 0
-        self.action_cooldown = 0
-        self.cooldown_threshold = 5
-        self.action_history = []
-        self.last_action = None
-        self.action_repeat_count = 0
-        self.max_repeats = 3
-        self.prev_coverage = 0.0
+        self.grid_size = 10
+        self.visited_cells = set()
+
+    def get_grid_coordinates(self, x, y, bounds, grid_size):
+        norm_x = (x - bounds["left"]) / (bounds["right"] - bounds["left"])
+        norm_y = (y - bounds["top"]) / (bounds["bottom"] - bounds["top"])
+        col = int(norm_x * grid_size)
+        row = int(norm_y * grid_size)
+        col = min(max(col, 0), grid_size - 1)
+        row = min(max(row, 0), grid_size - 1)
+        return row, col
+
+    def get_coverage_from_visited(self):
+        total_cells = self.grid_size * self.grid_size
+        return len(self.visited_cells) / total_cells
 
     def process_state(self, game_data):
         if game_data["event"] == "STATE_UPDATE":
@@ -81,7 +87,7 @@ class BattlePainterGA:
             y = player["y"] / self.bounds["bottom"]
             degree = player["degree"] / 360.0
             can_draw = 1.0 if player["canDraw"] else 0.0
-            coverage = game_data["coverage"] / 100.0
+            coverage = self.get_coverage_from_visited()
             return np.reshape([x, y, degree, can_draw, coverage], [1, self.state_size])
         return None
 
@@ -90,40 +96,7 @@ class BattlePainterGA:
 
     def select_action(self, state, policy):
         action_values = np.dot(policy, state.flatten())
-        action = np.argmax(action_values)
-
-        # Track repeated actions
-        if self.last_action is not None and action == self.last_action:
-            self.action_repeat_count += 1
-        else:
-            self.action_repeat_count = 1  # count current action
-            self.last_action = action
-
-        # Penalize excessive repeats without coverage improvement
-        if self.action_repeat_count >= self.max_repeats:
-            if self.current_coverage - self.prev_coverage < 0.001:
-                print("Penalty: Excessive repeated action without coverage improvement.")
-                self.ga.fitness_scores[self.individual] -= 0.01
-
-        # Detect oscillation between LEFT and RIGHT
-        if len(self.action_history) >= 3:
-            last_three = self.action_history[-3:]
-            if set(last_three) == {0, 1}:
-                print("Penalty: Oscillation detected.")
-                self.ga.fitness_scores[self.individual] -= 0.01
-
-        # Enforce cooldown on direction change
-        if self.action_cooldown > 0 and action in [0, 1]:
-            print("Penalty: Direction change during cooldown.")
-            self.ga.fitness_scores[self.individual] -= 0.01
-            action = 2  # Prefer FORWARD
-        if action in [0, 1]:
-            self.action_cooldown = self.cooldown_threshold
-        else:
-            self.action_cooldown = max(0, self.action_cooldown - 1)
-
-        self.action_history.append(action)
-        return action
+        return np.argmax(action_values)
 
     async def game_loop(self):
         while self.generation < self.ga.generations:
@@ -131,37 +104,43 @@ class BattlePainterGA:
                 try:
                     async with websockets.connect(self.server_uri) as websocket:
                         print(f"Generation {self.generation}, Individual {i + 1}")
-                        total_coverage = 0
-                        steps = 0
                         self.done = False
                         self.individual = i
-                        self.action_cooldown = 0
-                        self.action_history.clear()
-                        self.last_action = None
-                        self.action_repeat_count = 0
-                        self.prev_coverage = 0.0
+                        self.visited_cells.clear()
 
                         while not self.done:
                             message = await websocket.recv()
                             game_data = json.loads(message)
 
                             if game_data["event"] == "STATE_UPDATE":
+                                # Track visited cells
+                                player = game_data["player"]
+                                x = player["x"]
+                                y = player["y"]
+                                row, col = self.get_grid_coordinates(x, y, self.bounds, self.grid_size)
+                                self.visited_cells.add((row, col))
+
+                                # Update state and coverage
                                 state = self.process_state(game_data)
-                                self.current_coverage = game_data["coverage"] / 100.0
+                                if state is None:
+                                    continue
+
+                                coverage = self.get_coverage_from_visited()
                                 action_index = self.select_action(state, policy)
                                 action = self.get_action_from_index(action_index)
 
                                 await websocket.send(json.dumps({"action": action}))
-                                self.prev_coverage = self.current_coverage
-                                total_coverage = self.current_coverage
-                                print(f"[Gen {self.generation} | Ind {i+1}] Action: {action} | Coverage: {self.current_coverage:.2f}")
+                                print(f"[Gen {self.generation} | Ind {i+1}] Action: {action} | Coverage: {coverage:.2f}")
 
                             elif game_data["event"] == "GAME_OVER":
                                 self.done = True
-                                self.ga.set_fitness(i, total_coverage)
-                                print(f"Individual {i + 1} finished with coverage: {total_coverage * 100:.2f}%")
-                                if i < self.ga.population_size - 1:
-                                    await websocket.send(json.dumps({"action": "RESET"}))
+                                final_coverage = self.get_coverage_from_visited()
+                                self.ga.set_fitness(i, final_coverage)
+                                print(f"Individual {i + 1} finished with coverage: {final_coverage * 100:.2f}%")
+                                await websocket.send(json.dumps({"action": "RESET"}))
+                                await asyncio.sleep(0.5)  # Give server time to reset (tweak as needed)
+                                #if i < self.ga.population_size - 1:
+                                #    await websocket.send(json.dumps({"action": "RESET"}))
 
                 except Exception as e:
                     print(f"Error with individual {i + 1}: {e}")

@@ -6,7 +6,7 @@
     pause = false,
     gameState = new PB.timer();
 
-  const GAME_INTERVAL = 90 * 1000; // 90 seconds game duration
+  const GAME_INTERVAL = 20 * 1000; // 90 seconds game duration
 
   init();
   function init() {
