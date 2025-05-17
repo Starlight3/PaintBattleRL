@@ -29,9 +29,9 @@ print(f"Using device: {device}")
 class DQN(nn.Module):
     def __init__(self, state_size, action_size):
         super(DQN, self).__init__()
-        self.fc1 = nn.Linear(state_size, 24)
-        self.fc2 = nn.Linear(24, 24)
-        self.fc3 = nn.Linear(24, action_size)
+        self.fc1 = nn.Linear(state_size, 64)  # Increased network capacity for enhanced state
+        self.fc2 = nn.Linear(64, 64)
+        self.fc3 = nn.Linear(64, action_size)
         
     def forward(self, x):
         x = F.relu(self.fc1(x))
@@ -127,8 +127,10 @@ class DQNAgent:
 
 class HeadlessBattlePainterRL:
     def __init__(self, server_uri="ws://localhost:9080/agent-client", model_path=None, start_epsilon=None):
-        # Game state dimensions: x, y, degree, can_draw, coverage
-        self.state_size = 5
+        # Game state dimensions: 
+        # - x, y, degree, can_draw, coverage, plus 4 density values (local, medium, far, overall)
+        self.state_size = 9
+        
         # Actions: LEFT, RIGHT, FORWARD
         self.action_size = 3
         self.agent = DQNAgent(self.state_size, self.action_size)
@@ -161,6 +163,12 @@ class HeadlessBattlePainterRL:
         self.current_coverage = 0
         self.done = False
         
+        # Canvas grid tracking
+        self.grid_resolution = 10  # Match the same resolution as the server
+        self.grid_width = self.bounds["right"] // self.grid_resolution
+        self.grid_height = self.bounds["bottom"] // self.grid_resolution
+        self.canvas = np.zeros((self.grid_height, self.grid_width), dtype=np.bool_)
+        
         # Episode tracking
         self.episode = 0
         self.max_episodes = 100000  # Much larger number for headless training
@@ -182,6 +190,65 @@ class HeadlessBattlePainterRL:
                 self.best_coverage = int(match.group(2)) / 100
                 print(f"Starting from episode {self.episode} with best coverage {self.best_coverage*100:.2f}%")
 
+    def sync_canvas_from_coverage(self, coverage):
+        """Approximate canvas state based on coverage percentage"""
+        # This is a simple approximation - we don't know exactly which cells are painted
+        # but we can use this to estimate density information
+        painted_cells = int((coverage / 100.0) * self.grid_width * self.grid_height)
+        total_cells = self.grid_width * self.grid_height
+        
+        # Update canvas with estimated coverage
+        # This is a simplification - actual painted areas would be different
+        # In a real implementation, you'd sync this data from the server
+        if self.canvas.sum() < painted_cells:
+            # If current canvas has fewer painted cells than expected, add more
+            needed = painted_cells - self.canvas.sum()
+            for _ in range(needed):
+                x = random.randint(0, self.grid_width-1)
+                y = random.randint(0, self.grid_height-1)
+                self.canvas[y, x] = True
+    
+    def calculate_density_metrics(self, player_x, player_y):
+        """Calculate density metrics at different ranges from player"""
+        # Convert player position to grid coordinates
+        grid_x = int(player_x / self.grid_resolution)
+        grid_y = int(player_y / self.grid_resolution)
+        
+        # Define ranges for density calculation
+        local_radius = 5   # Very close to player
+        medium_radius = 10  # Medium range
+        far_radius = 20     # Farther areas
+        
+        # Calculate densities
+        local_density = self.get_region_density(grid_x, grid_y, local_radius)
+        medium_density = self.get_region_density(grid_x, grid_y, medium_radius)
+        far_density = self.get_region_density(grid_x, grid_y, far_radius)
+        overall_density = np.sum(self.canvas) / (self.grid_width * self.grid_height)
+        
+        return local_density, medium_density, far_density, overall_density
+    
+    def get_region_density(self, center_x, center_y, radius):
+        """Calculate paint density in a circular region"""
+        total_cells = 0
+        painted_cells = 0
+        
+        # Check cells in a square region (for simplicity)
+        for y in range(max(0, center_y - radius), min(self.grid_height, center_y + radius + 1)):
+            for x in range(max(0, center_x - radius), min(self.grid_width, center_x + radius + 1)):
+                # Check if point is within circle radius
+                dx = x - center_x
+                dy = y - center_y
+                if dx*dx + dy*dy <= radius*radius:
+                    total_cells += 1
+                    if self.canvas[y, x]:
+                        painted_cells += 1
+        
+        # Avoid division by zero
+        if total_cells == 0:
+            return 0
+            
+        return painted_cells / total_cells
+
     def process_state(self, game_data):
         """Process game state data into a format for the neural network"""
         if game_data["event"] == "STATE_UPDATE" or game_data["event"] == "INITIAL_STATE":
@@ -194,7 +261,19 @@ class HeadlessBattlePainterRL:
             can_draw = 1.0 if player["canDraw"] else 0.0
             coverage = game_data["coverage"] / 100.0  # Normalize to [0,1]
             
-            return np.reshape([x, y, degree, can_draw, coverage], [1, self.state_size])
+            # Update our canvas approximation
+            self.sync_canvas_from_coverage(game_data["coverage"])
+            
+            # Calculate density metrics
+            local_density, medium_density, far_density, overall_density = self.calculate_density_metrics(
+                player["x"], player["y"]
+            )
+            
+            # Return state with density information
+            return np.reshape([
+                x, y, degree, can_draw, coverage,
+                local_density, medium_density, far_density, overall_density
+            ], [1, self.state_size])
         
         return None
 
@@ -203,20 +282,34 @@ class HeadlessBattlePainterRL:
         actions = ["LEFT", "RIGHT", "FORWARD"]
         return actions[action_index]
 
-    def calculate_reward(self, current_coverage, previous_coverage):
-        """Calculate reward based on coverage difference"""
+    def calculate_reward(self, current_coverage, previous_coverage, local_density):
+        """Calculate reward based on coverage difference and local density"""
         # Basic reward is the improvement in coverage
         coverage_reward = (current_coverage - previous_coverage) * 100
         
+        # Extract density metrics from state
+        #_, _, _, _, _, local_density, medium_density, far_density, _ = current_state[0]
+        
+        # Lower density means more empty space to fill
+        # Reward the agent for moving to areas with lower paint density
+        density_reward = 0
+        
+        # Strong reward for painting in low-density areas
+        if coverage_reward > 0:  # Only apply when actually painting something
+            density_reward = 2.0 * (1.0 - local_density) * coverage_reward
+        
+        # New reward combines coverage improvement and density-based exploration
+        total_reward = coverage_reward + density_reward
+        
         # Add bonus for higher coverage
         if current_coverage > self.best_coverage:
-            coverage_reward += 5  # Bonus for achieving new best
+            total_reward += 5  # Bonus for achieving new best
         
         # Add small penalty for not improving coverage
-        if coverage_reward <= 0:
-            coverage_reward -= 0.1
+        if total_reward <= 0:
+            total_reward -= 0.1
         
-        return coverage_reward
+        return total_reward
 
     async def game_loop(self):
         """Main game loop to connect with the headless game server"""
@@ -248,6 +341,9 @@ class HeadlessBattlePainterRL:
                     self.current_coverage = 0
                     self.previous_coverage = 0
                     
+                    # Reset canvas at the beginning of each episode
+                    self.canvas = np.zeros((self.grid_height, self.grid_width), dtype=np.bool_)
+                    
                     # Game session loop
                     while not self.done:
                         try:
@@ -261,9 +357,16 @@ class HeadlessBattlePainterRL:
                                 self.current_state = self.process_state(game_data)
                                 self.current_coverage = game_data["coverage"] / 100.0
                                 
+                                # Extract local density for reward calculation
+                                local_density = self.current_state[0][5] if self.current_state is not None else 0
+                                
                                 # If we have a previous state, we can learn from it
                                 if self.previous_state is not None and self.previous_action is not None:
-                                    reward = self.calculate_reward(self.current_coverage, self.previous_coverage)
+                                    reward = self.calculate_reward(
+                                        self.current_coverage, 
+                                        self.previous_coverage,
+                                        local_density
+                                    )
                                     self.agent.remember(self.previous_state, self.previous_action, reward, 
                                                        self.current_state, self.done)
                                     
@@ -293,7 +396,14 @@ class HeadlessBattlePainterRL:
                                 
                                 # Final learning step with done=True
                                 if self.previous_state is not None and self.previous_action is not None:
-                                    reward = self.calculate_reward(final_coverage, self.previous_coverage)
+                                    # Extract local density for reward calculation
+                                    local_density = self.previous_state[0][5] if self.previous_state is not None else 0
+                                    
+                                    reward = self.calculate_reward(
+                                        final_coverage, 
+                                        self.previous_coverage,
+                                        local_density
+                                    )
                                     # Create a dummy next state (doesn't matter as done=True)
                                     next_state = np.zeros((1, self.state_size))
                                     self.agent.remember(self.previous_state, self.previous_action, reward, 

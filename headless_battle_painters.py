@@ -17,12 +17,12 @@ logger = logging.getLogger('headless-battle-painters')
 class HeadlessBattlePainters:
     """A headless version of the Battle Painters game for fast RL training"""
     
-    def __init__(self, game_duration=60000, fast_mode=True):
+    def __init__(self, game_duration=6000, fast_mode=True):
         # Game constants
         self.bounds = {"top": 0, "right": 800, "bottom": 600, "left": 0}
         self.player_radius = 25
-        self.player_speed = 20
-        self.turn_speed = 30
+        self.player_speed = 2
+        self.turn_speed = 3
         self.game_duration = game_duration  # 10x faster than the original 6s
         self.fast_mode = fast_mode
         
@@ -133,7 +133,6 @@ class HeadlessBattlePainters:
     
     def apply_action(self, action):
         """Apply the agent's action to the game state"""
-        # print (action)
         if action == "LEFT":
             self.player["degree"] = (self.player["degree"] - self.turn_speed) % 360
         elif action == "RIGHT":
@@ -292,7 +291,7 @@ class HeadlessBattlePainters:
 async def main():
     """Main function to run the headless battle painters server"""
     # Create the game environment
-    game = HeadlessBattlePainters(game_duration=600)  # 600 frames = 6 seconds (like the original fast_mode)
+    game = HeadlessBattlePainters(game_duration=6000)  # 600 frames = 6 seconds (like the original fast_mode)
     
     try:
         # Start the server
