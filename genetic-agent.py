@@ -8,7 +8,7 @@ import os
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("genetic-agent")
-
+''' 
 # Constants
 GENOME_LENGTH = 600
 POPULATION_SIZE = 100
@@ -37,6 +37,46 @@ def crossover(parent1, parent2):
         random.choice([gene1, gene2])
         for gene1, gene2 in zip(parent1, parent2)
     ]
+'''
+# Constants (adjustable)
+GENOME_MIN_LENGTH = 10
+GENOME_MAX_LENGTH = 10000
+POPULATION_SIZE = 100
+GENERATIONS = 500000
+MUTATION_RATE = 0.1
+ACTIONS = ["LEFT", "RIGHT", "FORWARD"]
+WEBSOCKET_URI = "ws://localhost:9080/agent-client"
+BEST_GENOME_PATH = "best_genome.json"
+
+def random_genome():
+    length = random.randint(GENOME_MIN_LENGTH, GENOME_MAX_LENGTH)
+    return [random.choice(ACTIONS) for _ in range(length)]
+
+def mutate(genome):
+    new_genome = []
+    for gene in genome:
+        if random.random() < MUTATION_RATE:
+            op = random.choice(["replace", "delete", "insert"])
+            if op == "replace":
+                new_genome.append(random.choice(ACTIONS))
+            elif op == "delete":
+                continue  # skip this gene
+            elif op == "insert":
+                new_genome.append(random.choice(ACTIONS))
+                new_genome.append(gene)
+        else:
+            new_genome.append(gene)
+    # Optional: keep genome within min/max length bounds
+    return new_genome[:GENOME_MAX_LENGTH]
+
+def crossover(parent1, parent2):
+    max_length = max(len(parent1), len(parent2))
+    child = []
+    for i in range(max_length):
+        gene1 = parent1[i] if i < len(parent1) else random.choice(ACTIONS)
+        gene2 = parent2[i] if i < len(parent2) else random.choice(ACTIONS)
+        child.append(random.choice([gene1, gene2]))
+    return child
 
 def save_genome(genome, path=BEST_GENOME_PATH):
     with open(path, "w") as f:
