@@ -1,7 +1,7 @@
 ﻿PB.player = (function(obj) {
   var DEFAULT_RADIUS = 25,
-    DEFAULT_SPEED = 2,
-    DEFAULT_TURN_SPEED = 3,
+    DEFAULT_SPEED = 20,
+    DEFAULT_TURN_SPEED = 30,
     DEFAULT_IMAGE_OFFSET = DEFAULT_RADIUS / 2;
 
   // constructor

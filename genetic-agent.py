@@ -115,6 +115,8 @@ async def evolve():
     while len(population) < POPULATION_SIZE:
         population.append(random_genome())
 
+    best_overall_fitness = 0.0  # Initialize best fitness
+
     for generation in range(GENERATIONS):
         logger.info(f"Generation {generation + 1}/{GENERATIONS}")
         scored_population = []
@@ -144,7 +146,9 @@ async def evolve():
         logger.info(f"Best fitness this generation: {best_fitness:.2f}")
 
         # Save best genome
-        save_genome(scored_population[0][1])
+        if best_fitness > best_overall_fitness:
+            best_overall_fitness = best_fitness
+            save_genome(scored_population[0][1])
 
 if __name__ == "__main__":
     try:
