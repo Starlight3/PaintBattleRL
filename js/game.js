@@ -80,7 +80,7 @@ PB.startGame = function(bounds, players) {
     propCtx.clearRect(0, 0, bounds.right, bounds.bottom);
     
     // Display final score only in normal mode
-    if (!PB.FAST_MODE) {
+    if (PB.FAST_MODE) {
       propCtx.font = '32px Verdana';
       propCtx.fillStyle = '#000';
       propCtx.fillText(`Coverage: ${result[0].percent}%`, bounds.right / 2 - 120, bounds.bottom / 2);

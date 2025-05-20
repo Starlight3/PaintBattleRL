@@ -21,8 +21,8 @@ class HeadlessBattlePainters:
         # Game constants
         self.bounds = {"top": 0, "right": 800, "bottom": 600, "left": 0}
         self.player_radius = 25
-        self.player_speed = 2
-        self.turn_speed = 3
+        self.player_speed = 20
+        self.turn_speed = 30
         self.game_duration = game_duration  # 10x faster than the original 6s
         self.fast_mode = fast_mode
         

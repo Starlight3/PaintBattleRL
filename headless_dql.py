@@ -433,11 +433,11 @@ class HeadlessBattlePainterRL:
                                           f"Speed {eps_per_sec:.2f} eps/s")
                                 
                                 # Periodically save model regardless of performance
-                                current_time = time.time()
-                                if current_time - self.last_save_time > self.save_interval:
-                                    self.agent.save(f"battle_painter_latest.pt")
-                                    self.last_save_time = current_time
-                                    logger.info(f"Periodic save at episode {self.episode}")
+                                # current_time = time.time()
+                                # if current_time - self.last_save_time > self.save_interval:
+                                #     self.agent.save(f"battle_painter_latest.pt")
+                                #     self.last_save_time = current_time
+                                #     logger.info(f"Periodic save at episode {self.episode}")
                                 
                                 # Update target model periodically
                                 if self.episode % self.target_update_freq == 0:
