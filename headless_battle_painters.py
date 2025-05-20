@@ -19,7 +19,7 @@ class HeadlessBattlePainters:
     
     def __init__(self, game_duration=6000, fast_mode=True):
         # Game constants
-        self.bounds = {"top": 0, "right": 800, "bottom": 600, "left": 0}
+        self.bounds = {"top": 0, "right": 600, "bottom": 600, "left": 0}
         self.player_radius = 25
         self.player_speed = 20
         self.turn_speed = 30
@@ -27,7 +27,7 @@ class HeadlessBattlePainters:
         self.fast_mode = fast_mode
         
         # Grid-based canvas representation for faster coverage calculation
-        self.grid_resolution = 10  # Each cell is 10x10 pixels
+        self.grid_resolution = 30  # Each cell is 10x10 pixels
         self.grid_width = self.bounds["right"] // self.grid_resolution
         self.grid_height = self.bounds["bottom"] // self.grid_resolution
         self.canvas = np.zeros((self.grid_height, self.grid_width), dtype=np.bool_)
@@ -215,7 +215,7 @@ class HeadlessBattlePainters:
             "x": self.bounds["right"] // 2,
             "y": self.bounds["bottom"] // 2,
             "degree": 225,
-            "canDraw": True
+            "canDraw": True,
         }
         
         # Reset game state
@@ -231,7 +231,8 @@ class HeadlessBattlePainters:
         initial_state = {
             "event": "INITIAL_STATE",
             "player": self.player,
-            "coverage": 0
+            "coverage": 0,
+            "canvas": self.canvas.tolist(),  # Convert numpy array to list for JSON serialization
         }
         
         try:
@@ -248,7 +249,8 @@ class HeadlessBattlePainters:
         state_update = {
             "event": "STATE_UPDATE",
             "player": self.player,
-            "coverage": self.coverage
+            "coverage": self.coverage,
+            "canvas": self.canvas.tolist(), 
         }
         
         try:

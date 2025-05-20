@@ -19,9 +19,12 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class DQN(nn.Module):
     def __init__(self, state_size, action_size):
         super(DQN, self).__init__()
-        self.fc1 = nn.Linear(state_size, 24)
-        self.fc2 = nn.Linear(24, 24)
-        self.fc3 = nn.Linear(24, action_size)
+        # self.fc1 = nn.Linear(state_size, 24)
+        # self.fc2 = nn.Linear(24, 24)
+        # self.fc3 = nn.Linear(24, action_size)
+        self.fc1 = nn.Linear(state_size, 64)  # Increased network capacity for enhanced state
+        self.fc2 = nn.Linear(64, 64)
+        self.fc3 = nn.Linear(64, action_size)
         
     def forward(self, x):
         x = F.relu(self.fc1(x))
@@ -117,8 +120,8 @@ class DQNAgent:
 
 class BattlePainterRL:
     def __init__(self, server_uri="ws://localhost:9080/agent-client", model_path=None, start_epsilon=None):
-        # Game state dimensions: x, y, degree, can_draw, coverage
-        self.state_size = 5
+        # Game state dimensions: x, y, degree, can_draw, coverage, density features
+        self.state_size = 9
         # Actions: LEFT, RIGHT, FORWARD
         self.action_size = 3
         self.agent = DQNAgent(self.state_size, self.action_size)
@@ -138,7 +141,7 @@ class BattlePainterRL:
         # Game bounds
         self.bounds = {
             "top": 0,
-            "right": 800,
+            "right": 600,
             "bottom": 600,
             "left": 0
         }
