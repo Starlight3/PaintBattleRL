@@ -57,9 +57,6 @@
   function startGame() {
     gameState.setInterval(update);
     gameState.setTimeout(endGame, GAME_INTERVAL);
-    gameState.setInterval(function() {
-      pickups.push(new PB.pickup(bounds));
-    }, PICKUP_INTERVAL);
   }
 
   function endGame() {
@@ -83,6 +80,7 @@
       propCtx.fillText(`${x.name}:`, theX, theY);
       propCtx.fillText(`${x.percent}% ${x.winner ? '🏆' : ''}`, theX + 250, theY);
     });
+    //send result here
   }
 
   function updatePlayers() {
@@ -91,19 +89,6 @@
       player.move(gameState);
       player.restrict(bounds);
 
-      if (player.canCollide) {
-        player.canCollide = false;
-        var collision = player.checkCircleCollision(players).collision,
-          j = collision.length;
-        player.canCollide = true;
-
-        if (j) {
-          for (; j--; ) {
-            collision[j].jump(gameState);
-          }
-          player.jump(gameState);
-        }
-      }
     }
   }
 
@@ -129,15 +114,6 @@
         player.radius * 2
       );
 
-      if (player.stunned) {
-        propCtx.drawImage(
-          PB.images.plaster,
-          x - player.radius / 2,
-          y - player.radius,
-          player.radius,
-          player.radius
-        );
-      }
 
       //draw heading direction line
       propCtx.beginPath();
@@ -153,25 +129,6 @@
     }
   }
 
-  function updatePickup(pickup) {
-    var collisions = pickup.checkCircleCollision(players);
-
-    if (collisions.collision.length) {
-      pickup.get(collisions, gameState, ctx, bounds);
-      pickups.splice(pickups.indexOf(pickup), 1);
-    }
-  }
-
-  function drawPickup(pickup) {
-    propCtx.drawImage(
-      PB.images.pickup,
-      pickup.position.x - pickup.radius,
-      pickup.position.y - pickup.radius,
-      pickup.radius * 2,
-      pickup.radius * 2
-    );
-  }
-
   function drawDebug() {
     propCtx.fillStyle = '#f00';
     propCtx.font = '11px Verdana';
@@ -185,10 +142,6 @@
     propCtx.clearRect(0, 0, bounds.right, bounds.bottom);
     updatePlayers();
     drawPlayers();
-    pickups.forEach(pickup => {
-      updatePickup(pickup);
-      drawPickup(pickup);
-    });
     // drawDebug();
   }
 
