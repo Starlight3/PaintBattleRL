@@ -137,14 +137,84 @@
       propCtx.fillText(gameState.moments[i].delta | 0, 10, i * 15 + 30);
     }
   }
+  function reshapeFlatArrayTo2D(flatArray, width) {
+    const grid2D = [];
+    for (let i = 0; i < flatArray.length; i += width) {
+      grid2D.push(flatArray.slice(i, i + width));
+    }
+    return grid2D;
+  }
 
+  function printGrid2D(grid2D) {
+    for (const row of grid2D) {
+      console.log(row.map(cell => cell.toString()).join(' '));
+    }
+  }
+
+  function imageDataToPlayerGridFromRgbaList(rgbaList, players, playerIndex, strideX, strideY, width, height) {
+    const playerColor = hexToRgb(players[playerIndex].color);
+    const result = [];
+
+    for (let y = 0; y < height; y += strideY) {
+      for (let x = 0; x < width; x += strideX) {
+        const index = y * width + x;
+        const rgba = rgbaList[index];
+
+        if (!rgba || rgba[3] === 0 || isBlack(rgba)) {
+          result.push(1); // unpainted
+        } else if (getRgbDifference(playerColor, rgba.slice(0, 3)) < 30) {
+          result.push(0); // painted by this player
+        } else {
+          result.push(2); // painted by others
+        }
+      }
+    }
+
+    return result;
+  }
+
+  function calculateCoverageFromFlatGrid(flatGrid) {
+    let paintedByThisPlayer = 0;
+    const totalPixels = flatGrid.length;
+
+    for (let cell of flatGrid) {
+      if (cell === 0) paintedByThisPlayer++;
+    }
+
+    return (paintedByThisPlayer / totalPixels) * 100;
+  }
+  let frameCount = 0;
+  const frameSkip = 20;
+  const strideX = 20;
   function update() {
+    frameCount++;
     propCtx.clearRect(0, 0, bounds.right, bounds.bottom);
     updatePlayers();
     drawPlayers();
     // drawDebug();
-    if(PB.sendGameState) {
-      PB.sendGameState({event: 'STATE_UPDATE',coverage:0});
+    if(PB.sendGameState && frameCount % frameSkip === 0) {
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      
+      const rgbaList = imageDataToRgbaList(imageData.data);
+      const playerIndex = 0;
+      //20 is the stride, to reduce the array size, to improve frame processing speed
+      const flatGrid = imageDataToPlayerGridFromRgbaList(rgbaList, players, playerIndex, strideX, strideX, canvas.width, canvas.height);
+      const grid2D = reshapeFlatArrayTo2D(flatGrid, Math.floor(canvas.width / strideX));
+      const coverage = calculateCoverageFromFlatGrid(flatGrid);
+      /*console.log(canvas.width, canvas.height);
+      console.log("flatGrid length (number of pixels):", flatGrid.length);
+      console.log("rgbaList length (number of pixels):", rgbaList.length);
+      console.log("grid2D dimensions:", grid2D.length, "rows ×", grid2D[0].length, "columns");
+      if (rgbaList.length !== flatGrid.length) {
+        console.warn("Mismatch in rgbaList and flatGrid lengths!");
+      }
+
+      if (flatGrid.length !== canvas.width * canvas.height) {
+        console.warn("flatGrid size does not match canvas dimensions!");
+      }
+       printGrid2D(grid2D);
+      */
+      PB.sendGameState({event: 'STATE_UPDATE',coverage:coverage, grid: grid2D});
     }
   }
 

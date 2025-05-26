@@ -18,7 +18,7 @@
         name: 'Player 1',
         //isComputer: true
       }),
-      /* */
+      
       new PB.player({
         x: midX + 30,
         y: midY - 30,
@@ -29,7 +29,7 @@
         name: 'Player 2',
         isComputer: true,
       }),
-      /* */
+ 
       new PB.player({
         x: midX - 30,
         y: midY + 30,
