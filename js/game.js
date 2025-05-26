@@ -226,11 +226,11 @@
           y: players[playerIndex].position.y,
           degree: ((players[playerIndex].degree % 360) +360) % 360,
           canDraw: players[playerIndex].canDraw()
-          },
-          coverage:coverage, 
-          strideX: strideX,
-          strideY: strideX,
-          grid: grid2D
+        },
+        coverage:coverage, 
+        strideX: strideX,
+        strideY: strideX,
+        grid: grid2D
         });
     }
   }
