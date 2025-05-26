@@ -143,6 +143,9 @@
     updatePlayers();
     drawPlayers();
     // drawDebug();
+    if(PB.sendGameState) {
+      PB.sendGameState({event: 'STATE_UPDATE',coverage:0});
+    }
   }
 
   function rgbToHex(r, g, b) {

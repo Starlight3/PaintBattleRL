@@ -172,6 +172,7 @@
   function init(images) {
     PB.keys = [];
     PB.images = images;
+    PB.initWebSocket();
     document.addEventListener('keydown', function(e) {
       e = e ? e : window.event;
       PB.keys[e.keyCode] = true;
