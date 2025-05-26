@@ -80,7 +80,12 @@
       propCtx.fillText(`${x.name}:`, theX, theY);
       propCtx.fillText(`${x.percent}% ${x.winner ? '🏆' : ''}`, theX + 250, theY);
     });
-    //send result here
+    if (PB.sendGameState) {
+      PB.sendGameState({
+        event: 'GAME_OVER',
+        coverage: result[0].percent
+      });
+    }
   }
 
   function updatePlayers() {
@@ -214,7 +219,19 @@
       }
        printGrid2D(grid2D);
       */
-      PB.sendGameState({event: 'STATE_UPDATE',coverage:coverage, grid: grid2D});
+      PB.sendGameState({
+        event: 'STATE_UPDATE',
+        player: {
+          x: players[playerIndex].position.x,
+          y: players[playerIndex].position.y,
+          degree: ((players[playerIndex].degree % 360) +360) % 360,
+          canDraw: players[playerIndex].canDraw()
+          },
+          coverage:coverage, 
+          strideX: strideX,
+          strideY: strideX,
+          grid: grid2D
+        });
     }
   }
 

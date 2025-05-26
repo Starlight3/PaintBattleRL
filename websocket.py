@@ -41,14 +41,14 @@ class BattlePainterServer:
         try:
             async for message in websocket:
                 # Forward game state to the RL agent
-                #print(message)
+                print(message)
                 #print("\n\n\n\nCHECK\n\n\n\n")
-                data = json.loads(message)
-                print(data["coverage"])
-                grid = data["grid"]
-                print("Grid:")
-                for row in grid:
-                    print(row)
+                #data = json.loads(message)
+                #print(data["coverage"])
+                #grid = data["grid"]
+                #print("Grid:")
+                #for row in grid:
+                #    print(row)
                 if self.agent_connection:
                     await self.agent_connection.send(message)
                     # logger.debug(f"Forwarded game state: {message[:100]}...")
