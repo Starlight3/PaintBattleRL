@@ -4,6 +4,7 @@ import random
 import websockets
 import asyncio
 import json
+from itertools import product
 class BattlePainterGA:
     def __init__(self, server_uri="ws://localhost:9080/agent-client"):
         self.server_uri = server_uri
@@ -25,10 +26,23 @@ class BattlePainterGA:
         if game_data["event"] == "STATE_UPDATE":
             return None
         return None
+    
+    def generate_random_genome(self,length=128, action_space=(0, 1, 2)):
+        return [random.choice(action_space) for _ in range(length)]
+    
+    def generate_all_keys(self, angle_splits=8):
+        angles = [i * (360 // angle_splits) for i in range(angle_splits)]
+        quads = list(product([0, 1], repeat=4))  # All 16 (q1, q2, q3, q4)
+        keys = [(q1, q2, q3, q4, angle) for (q1, q2, q3, q4) in quads for angle in angles]
+        return keys
+    def build_action_table(self, genome, keys):
+        return {key: action for key, action in zip(keys, genome)}
+    
     def get_action(self, quads, degree, parts):
         q1, q2, q3, q4 = quads
         snapped_degree = self.snap_degree_to_nearest_sector(degree, parts)
         key = (q1, q2, q3, q4, snapped_degree)
+        print("key ",key, "action ",self.action_table.get(key, 2))
         return self.action_table.get(key, 2)
     
     def normalise_quads_multi_max(self, quad1, quad2, quad3, quad4):
@@ -66,6 +80,10 @@ class BattlePainterGA:
         return snapped % 360
     
     async def game_loop(self):
+        self.action_table = self.build_action_table(self.generate_random_genome(), self.generate_all_keys())
+        print("Generated Action Table:")
+        for key, value in self.action_table.items():
+            print(f"{key} -> {value}")
         try:
             async with websockets.connect(self.server_uri) as websocket:
                 while not self.done:
@@ -79,15 +97,11 @@ class BattlePainterGA:
                         strideX = game_data["strideX"]
                         strideY = game_data["strideY"]
                         grid = game_data["grid"]
-                        decision = self.get_action(self.convertGrid(grid, int(x/strideX),int(y/strideY)), degree,4)
+                        decision = self.get_action(self.convertGrid(grid, int(x/strideX),int(y/strideY)), degree,8)
                         await websocket.send(json.dumps({"action": self.action_map.get(decision, "FORWARD")}))
-                        #self.counter=self.counter+1
-                        #if self.counter%100 < 50:
-                        #    await websocket.send(json.dumps({"action": "LEFT"}))
-                        #else:
-                        #    await websocket.send(json.dumps({"action": "RIGHT"}))
                     elif game_data["event"] == "GAME_OVER":
                         self.done = True
+                        print("Coverage:", game_data["coverage"])
                         await websocket.send(json.dumps({"action": "RESET"}))
         except Exception as e:
             print(e)
