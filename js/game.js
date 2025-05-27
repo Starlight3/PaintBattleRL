@@ -7,7 +7,7 @@
     pickups = [],
     gameState = new PB.timer();
 
-  const GAME_INTERVAL = 90 * 1000;
+  const GAME_INTERVAL = 45 * 1000;
   const PICKUP_INTERVAL = 25 * 1000;
 
   init();
@@ -29,7 +29,7 @@
   }
 
   function countdown() {
-    let time = 3;
+    let time = 1;
     const x = bounds.right / 2 - 70;
     const y = bounds.bottom / 2 + 70;
     propCtx.font = 'bold 210px Verdana';
