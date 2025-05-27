@@ -7,7 +7,7 @@ from itertools import product
 import os
 
 POPULATION_FILE = "population_data.json"
-POPULATION_SIZE = 10
+POPULATION_SIZE = 15
 NUM_GENERATIONS = 500
 ELITE_COUNT = 2
 MUTATION_RATE = 0.1
@@ -83,6 +83,10 @@ class BattlePainterGA:
         # Sort by fitness (descending)
         sorted_population = sorted(self.population, key=lambda x: x["fitness"] or 0, reverse=True)
         elites = sorted_population[:ELITE_COUNT]
+        # Print elites
+        print("\n--- Elites Preserved ---")
+        for i, elite in enumerate(elites):
+            print(f"Elite {i + 1}: Fitness = {elite['fitness']}, Genome (first 10 genes) = {elite['genome'][:10]}...")
 
         new_population = elites[:]
         while len(new_population) < POPULATION_SIZE:
@@ -114,16 +118,33 @@ class BattlePainterGA:
             print(f"Genome {i + 1}: {status}")
 
     def save_population(self):
+        sorted_pop = sorted(
+            self.population,
+            key=lambda x: x["fitness"] if x["fitness"] is not None else -1,
+            reverse=True
+        )
         with open(POPULATION_FILE, "w") as f:
-            json.dump(self.population, f, indent=2)
+            json.dump(sorted_pop, f, indent=2)
 
     def load_population(self):
         if os.path.exists(POPULATION_FILE):
             with open(POPULATION_FILE, "r") as f:
                 self.population = json.load(f)
-            print("Population loaded from file.")
+            print(f"Population loaded from file with {len(self.population)} individuals.")
+            
+            if len(self.population) > POPULATION_SIZE:
+                # Sort descending, treating None fitness as lowest
+                self.population.sort(key=lambda x: x["fitness"] if x["fitness"] is not None else -1, reverse=True)
+                self.population = self.population[:POPULATION_SIZE]
+                print("Sorted and truncated population to retain best individuals.")
+            # Pad with new individuals if needed
+            while len(self.population) < POPULATION_SIZE:
+                self.population.append({"genome": self.generate_random_genome(), "fitness": None})
+                print("Added new random genome to match updated POPULATION_SIZE.")
+            
         else:
-            print("No saved population found. Starting fresh.")
+            print("No saved population found. Starting new.")
+            self.population = [{"genome": self.generate_random_genome(), "fitness": None} for _ in range(POPULATION_SIZE)]
 
     def resume_progress(self):
         for i, individual in enumerate(self.population):

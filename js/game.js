@@ -7,7 +7,7 @@
     pickups = [],
     gameState = new PB.timer();
 
-  const GAME_INTERVAL = 45 * 1000;
+  const GAME_INTERVAL = 90 * 1000;
   const PICKUP_INTERVAL = 25 * 1000;
 
   init();
