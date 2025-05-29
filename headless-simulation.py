@@ -15,7 +15,7 @@ import numpy as np
 import math
 
 class GameState:
-    def __init__(self, canvas_width=800, canvas_height=600, stride=20, max_steps=1800):
+    def __init__(self, canvas_width=800, canvas_height=600, stride=20, max_steps=1200):
         # Grid resolution
         self.strideX = stride
         self.strideY = stride
