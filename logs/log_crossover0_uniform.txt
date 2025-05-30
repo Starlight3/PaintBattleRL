@@ -1,0 +1,1207 @@
+No saved genome found.
+Generation 1/100
+Genome 1: Fitness 37.62
+Genome 2: Fitness 36.14
+Genome 3: Fitness 46.01
+Genome 4: Fitness 73.73
+Genome 5: Fitness 43.41
+Genome 6: Fitness 58.53
+Genome 7: Fitness 36.92
+Genome 8: Fitness 60.13
+Genome 9: Fitness 65.35
+Genome 10: Fitness 37.28
+Best fitness: 73.73
+Saved best genome to bestModels/bestGenome__g100_m0.1_p10_uniform_gen100_e2_crossover0_uniform.json
+Generation 2/100
+Genome 1: Fitness 73.73
+Genome 2: Fitness 65.35
+Genome 3: Fitness 88.50
+Genome 4: Fitness 69.84
+Genome 5: Fitness 35.79
+Genome 6: Fitness 9.22
+Genome 7: Fitness 65.66
+Genome 8: Fitness 72.45
+Genome 9: Fitness 14.69
+Genome 10: Fitness 51.86
+Best fitness: 88.50
+Saved best genome to bestModels/bestGenome__g100_m0.1_p10_uniform_gen100_e2_crossover0_uniform.json
+Generation 3/100
+Genome 1: Fitness 88.50
+Genome 2: Fitness 73.73
+Genome 3: Fitness 63.55
+Genome 4: Fitness 25.42
+Genome 5: Fitness 20.39
+Genome 6: Fitness 40.80
+Genome 7: Fitness 33.17
+Genome 8: Fitness 38.72
+Genome 9: Fitness 75.53
+Genome 10: Fitness 66.14
+Best fitness: 88.50
+Generation 4/100
+Genome 1: Fitness 88.50
+Genome 2: Fitness 75.53
+Genome 3: Fitness 42.27
+Genome 4: Fitness 31.36
+Genome 5: Fitness 86.56
+Genome 6: Fitness 38.14
+Genome 7: Fitness 36.48
+Genome 8: Fitness 32.01
+Genome 9: Fitness 50.59
+Genome 10: Fitness 42.82
+Best fitness: 88.50
+Generation 5/100
+Genome 1: Fitness 88.50
+Genome 2: Fitness 86.56
+Genome 3: Fitness 43.59
+Genome 4: Fitness 33.64
+Genome 5: Fitness 75.70
+Genome 6: Fitness 65.53
+Genome 7: Fitness 60.04
+Genome 8: Fitness 39.43
+Genome 9: Fitness 32.04
+Genome 10: Fitness 89.98
+Best fitness: 89.98
+Saved best genome to bestModels/bestGenome__g100_m0.1_p10_uniform_gen100_e2_crossover0_uniform.json
+Generation 6/100
+Genome 1: Fitness 89.98
+Genome 2: Fitness 88.50
+Genome 3: Fitness 43.89
+Genome 4: Fitness 52.93
+Genome 5: Fitness 44.01
+Genome 6: Fitness 38.86
+Genome 7: Fitness 63.59
+Genome 8: Fitness 33.06
+Genome 9: Fitness 33.09
+Genome 10: Fitness 62.66
+Best fitness: 89.98
+Generation 7/100
+Genome 1: Fitness 89.98
+Genome 2: Fitness 88.50
+Genome 3: Fitness 37.84
+Genome 4: Fitness 83.66
+Genome 5: Fitness 66.29
+Genome 6: Fitness 54.74
+Genome 7: Fitness 47.69
+Genome 8: Fitness 53.94
+Genome 9: Fitness 22.03
+Genome 10: Fitness 59.23
+Best fitness: 89.98
+Generation 8/100
+Genome 1: Fitness 89.98
+Genome 2: Fitness 88.50
+Genome 3: Fitness 42.36
+Genome 4: Fitness 40.55
+Genome 5: Fitness 74.67
+Genome 6: Fitness 55.58
+Genome 7: Fitness 86.23
+Genome 8: Fitness 63.32
+Genome 9: Fitness 41.03
+Genome 10: Fitness 53.75
+Best fitness: 89.98
+Generation 9/100
+Genome 1: Fitness 89.98
+Genome 2: Fitness 88.50
+Genome 3: Fitness 58.14
+Genome 4: Fitness 25.00
+Genome 5: Fitness 9.04
+Genome 6: Fitness 31.38
+Genome 7: Fitness 44.76
+Genome 8: Fitness 52.28
+Genome 9: Fitness 87.62
+Genome 10: Fitness 39.35
+Best fitness: 89.98
+Generation 10/100
+Genome 1: Fitness 89.98
+Genome 2: Fitness 88.50
+Genome 3: Fitness 32.84
+Genome 4: Fitness 74.89
+Genome 5: Fitness 71.39
+Genome 6: Fitness 40.71
+Genome 7: Fitness 59.57
+Genome 8: Fitness 35.07
+Genome 9: Fitness 14.59
+Genome 10: Fitness 76.83
+Best fitness: 89.98
+Generation 11/100
+Genome 1: Fitness 89.98
+Genome 2: Fitness 88.50
+Genome 3: Fitness 45.79
+Genome 4: Fitness 57.91
+Genome 5: Fitness 10.05
+Genome 6: Fitness 32.64
+Genome 7: Fitness 37.88
+Genome 8: Fitness 30.45
+Genome 9: Fitness 83.54
+Genome 10: Fitness 40.36
+Best fitness: 89.98
+Generation 12/100
+Genome 1: Fitness 89.98
+Genome 2: Fitness 88.50
+Genome 3: Fitness 37.02
+Genome 4: Fitness 70.72
+Genome 5: Fitness 64.64
+Genome 6: Fitness 58.42
+Genome 7: Fitness 34.50
+Genome 8: Fitness 52.40
+Genome 9: Fitness 83.62
+Genome 10: Fitness 82.55
+Best fitness: 89.98
+Generation 13/100
+Genome 1: Fitness 89.98
+Genome 2: Fitness 88.50
+Genome 3: Fitness 69.93
+Genome 4: Fitness 87.10
+Genome 5: Fitness 61.26
+Genome 6: Fitness 30.98
+Genome 7: Fitness 61.07
+Genome 8: Fitness 83.74
+Genome 9: Fitness 42.75
+Genome 10: Fitness 56.41
+Best fitness: 89.98
+Generation 14/100
+Genome 1: Fitness 89.98
+Genome 2: Fitness 88.50
+Genome 3: Fitness 91.86
+Genome 4: Fitness 59.37
+Genome 5: Fitness 73.10
+Genome 6: Fitness 48.58
+Genome 7: Fitness 79.90
+Genome 8: Fitness 83.12
+Genome 9: Fitness 11.34
+Genome 10: Fitness 91.36
+Best fitness: 91.86
+Saved best genome to bestModels/bestGenome__g100_m0.1_p10_uniform_gen100_e2_crossover0_uniform.json
+Generation 15/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.36
+Genome 3: Fitness 71.33
+Genome 4: Fitness 50.47
+Genome 5: Fitness 29.98
+Genome 6: Fitness 83.13
+Genome 7: Fitness 43.16
+Genome 8: Fitness 52.47
+Genome 9: Fitness 51.35
+Genome 10: Fitness 79.39
+Best fitness: 91.86
+Generation 16/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.36
+Genome 3: Fitness 31.97
+Genome 4: Fitness 56.59
+Genome 5: Fitness 88.70
+Genome 6: Fitness 74.90
+Genome 7: Fitness 90.79
+Genome 8: Fitness 55.14
+Genome 9: Fitness 78.79
+Genome 10: Fitness 51.67
+Best fitness: 91.86
+Generation 17/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.36
+Genome 3: Fitness 30.86
+Genome 4: Fitness 47.37
+Genome 5: Fitness 59.05
+Genome 6: Fitness 79.24
+Genome 7: Fitness 46.21
+Genome 8: Fitness 42.10
+Genome 9: Fitness 46.79
+Genome 10: Fitness 85.52
+Best fitness: 91.86
+Generation 18/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.36
+Genome 3: Fitness 68.17
+Genome 4: Fitness 37.11
+Genome 5: Fitness 36.35
+Genome 6: Fitness 51.18
+Genome 7: Fitness 81.18
+Genome 8: Fitness 91.73
+Genome 9: Fitness 78.69
+Genome 10: Fitness 66.31
+Best fitness: 91.86
+Generation 19/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.73
+Genome 3: Fitness 52.17
+Genome 4: Fitness 64.76
+Genome 5: Fitness 37.97
+Genome 6: Fitness 55.41
+Genome 7: Fitness 63.81
+Genome 8: Fitness 59.12
+Genome 9: Fitness 55.38
+Genome 10: Fitness 21.44
+Best fitness: 91.86
+Generation 20/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.73
+Genome 3: Fitness 17.01
+Genome 4: Fitness 51.41
+Genome 5: Fitness 70.67
+Genome 6: Fitness 44.52
+Genome 7: Fitness 43.04
+Genome 8: Fitness 40.92
+Genome 9: Fitness 58.72
+Genome 10: Fitness 83.17
+Best fitness: 91.86
+Generation 21/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.73
+Genome 3: Fitness 60.90
+Genome 4: Fitness 82.82
+Genome 5: Fitness 50.32
+Genome 6: Fitness 87.15
+Genome 7: Fitness 50.86
+Genome 8: Fitness 26.26
+Genome 9: Fitness 82.91
+Genome 10: Fitness 27.84
+Best fitness: 91.86
+Generation 22/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.73
+Genome 3: Fitness 52.68
+Genome 4: Fitness 17.38
+Genome 5: Fitness 85.40
+Genome 6: Fitness 71.10
+Genome 7: Fitness 78.05
+Genome 8: Fitness 19.16
+Genome 9: Fitness 70.50
+Genome 10: Fitness 59.15
+Best fitness: 91.86
+Generation 23/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.73
+Genome 3: Fitness 90.10
+Genome 4: Fitness 57.16
+Genome 5: Fitness 50.29
+Genome 6: Fitness 33.18
+Genome 7: Fitness 59.86
+Genome 8: Fitness 88.40
+Genome 9: Fitness 49.75
+Genome 10: Fitness 23.94
+Best fitness: 91.86
+Generation 24/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.73
+Genome 3: Fitness 89.58
+Genome 4: Fitness 68.33
+Genome 5: Fitness 63.24
+Genome 6: Fitness 20.62
+Genome 7: Fitness 46.53
+Genome 8: Fitness 89.02
+Genome 9: Fitness 70.25
+Genome 10: Fitness 87.86
+Best fitness: 91.86
+Generation 25/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.73
+Genome 3: Fitness 70.34
+Genome 4: Fitness 67.08
+Genome 5: Fitness 38.07
+Genome 6: Fitness 87.67
+Genome 7: Fitness 88.03
+Genome 8: Fitness 70.92
+Genome 9: Fitness 53.25
+Genome 10: Fitness 60.70
+Best fitness: 91.86
+Generation 26/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.73
+Genome 3: Fitness 79.33
+Genome 4: Fitness 50.84
+Genome 5: Fitness 64.29
+Genome 6: Fitness 37.16
+Genome 7: Fitness 32.00
+Genome 8: Fitness 42.02
+Genome 9: Fitness 63.42
+Genome 10: Fitness 88.19
+Best fitness: 91.86
+Generation 27/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.73
+Genome 3: Fitness 71.00
+Genome 4: Fitness 23.34
+Genome 5: Fitness 21.87
+Genome 6: Fitness 82.15
+Genome 7: Fitness 90.28
+Genome 8: Fitness 24.90
+Genome 9: Fitness 33.42
+Genome 10: Fitness 80.42
+Best fitness: 91.86
+Generation 28/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.73
+Genome 3: Fitness 33.71
+Genome 4: Fitness 84.90
+Genome 5: Fitness 89.42
+Genome 6: Fitness 47.26
+Genome 7: Fitness 83.46
+Genome 8: Fitness 36.03
+Genome 9: Fitness 32.11
+Genome 10: Fitness 84.76
+Best fitness: 91.86
+Generation 29/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.73
+Genome 3: Fitness 61.92
+Genome 4: Fitness 68.28
+Genome 5: Fitness 46.25
+Genome 6: Fitness 33.68
+Genome 7: Fitness 31.16
+Genome 8: Fitness 87.25
+Genome 9: Fitness 31.12
+Genome 10: Fitness 46.46
+Best fitness: 91.86
+Generation 30/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.73
+Genome 3: Fitness 47.61
+Genome 4: Fitness 84.66
+Genome 5: Fitness 31.30
+Genome 6: Fitness 59.91
+Genome 7: Fitness 28.99
+Genome 8: Fitness 78.63
+Genome 9: Fitness 8.78
+Genome 10: Fitness 89.08
+Best fitness: 91.86
+Generation 31/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.73
+Genome 3: Fitness 65.20
+Genome 4: Fitness 48.64
+Genome 5: Fitness 29.75
+Genome 6: Fitness 32.90
+Genome 7: Fitness 34.66
+Genome 8: Fitness 33.40
+Genome 9: Fitness 83.63
+Genome 10: Fitness 56.60
+Best fitness: 91.86
+Generation 32/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.73
+Genome 3: Fitness 37.30
+Genome 4: Fitness 12.92
+Genome 5: Fitness 33.35
+Genome 6: Fitness 31.11
+Genome 7: Fitness 29.78
+Genome 8: Fitness 31.30
+Genome 9: Fitness 31.99
+Genome 10: Fitness 73.56
+Best fitness: 91.86
+Generation 33/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.73
+Genome 3: Fitness 42.97
+Genome 4: Fitness 34.83
+Genome 5: Fitness 48.05
+Genome 6: Fitness 65.40
+Genome 7: Fitness 41.96
+Genome 8: Fitness 54.56
+Genome 9: Fitness 29.92
+Genome 10: Fitness 61.19
+Best fitness: 91.86
+Generation 34/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.73
+Genome 3: Fitness 34.23
+Genome 4: Fitness 69.11
+Genome 5: Fitness 33.78
+Genome 6: Fitness 34.33
+Genome 7: Fitness 46.16
+Genome 8: Fitness 7.76
+Genome 9: Fitness 49.91
+Genome 10: Fitness 60.65
+Best fitness: 91.86
+Generation 35/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.73
+Genome 3: Fitness 67.67
+Genome 4: Fitness 45.89
+Genome 5: Fitness 66.41
+Genome 6: Fitness 59.08
+Genome 7: Fitness 36.89
+Genome 8: Fitness 63.14
+Genome 9: Fitness 66.78
+Genome 10: Fitness 33.68
+Best fitness: 91.86
+Generation 36/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.73
+Genome 3: Fitness 27.58
+Genome 4: Fitness 48.84
+Genome 5: Fitness 51.63
+Genome 6: Fitness 24.26
+Genome 7: Fitness 46.33
+Genome 8: Fitness 84.50
+Genome 9: Fitness 40.20
+Genome 10: Fitness 33.73
+Best fitness: 91.86
+Generation 37/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.73
+Genome 3: Fitness 64.38
+Genome 4: Fitness 84.67
+Genome 5: Fitness 30.01
+Genome 6: Fitness 87.43
+Genome 7: Fitness 56.45
+Genome 8: Fitness 80.80
+Genome 9: Fitness 81.58
+Genome 10: Fitness 89.38
+Best fitness: 91.86
+Generation 38/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.73
+Genome 3: Fitness 62.52
+Genome 4: Fitness 90.80
+Genome 5: Fitness 36.52
+Genome 6: Fitness 46.03
+Genome 7: Fitness 51.54
+Genome 8: Fitness 46.69
+Genome 9: Fitness 83.31
+Genome 10: Fitness 28.61
+Best fitness: 91.86
+Generation 39/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.73
+Genome 3: Fitness 54.44
+Genome 4: Fitness 87.25
+Genome 5: Fitness 33.93
+Genome 6: Fitness 56.77
+Genome 7: Fitness 84.47
+Genome 8: Fitness 52.42
+Genome 9: Fitness 45.06
+Genome 10: Fitness 35.77
+Best fitness: 91.86
+Generation 40/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.73
+Genome 3: Fitness 21.38
+Genome 4: Fitness 12.71
+Genome 5: Fitness 31.58
+Genome 6: Fitness 75.16
+Genome 7: Fitness 71.48
+Genome 8: Fitness 90.53
+Genome 9: Fitness 33.88
+Genome 10: Fitness 36.81
+Best fitness: 91.86
+Generation 41/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.73
+Genome 3: Fitness 74.28
+Genome 4: Fitness 63.49
+Genome 5: Fitness 51.57
+Genome 6: Fitness 31.78
+Genome 7: Fitness 53.29
+Genome 8: Fitness 68.06
+Genome 9: Fitness 44.99
+Genome 10: Fitness 74.00
+Best fitness: 91.86
+Generation 42/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.73
+Genome 3: Fitness 80.71
+Genome 4: Fitness 67.70
+Genome 5: Fitness 85.31
+Genome 6: Fitness 49.20
+Genome 7: Fitness 41.81
+Genome 8: Fitness 14.91
+Genome 9: Fitness 36.06
+Genome 10: Fitness 50.02
+Best fitness: 91.86
+Generation 43/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.73
+Genome 3: Fitness 50.85
+Genome 4: Fitness 71.82
+Genome 5: Fitness 81.33
+Genome 6: Fitness 71.78
+Genome 7: Fitness 65.22
+Genome 8: Fitness 68.55
+Genome 9: Fitness 51.92
+Genome 10: Fitness 79.09
+Best fitness: 91.86
+Generation 44/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.73
+Genome 3: Fitness 45.07
+Genome 4: Fitness 48.43
+Genome 5: Fitness 33.75
+Genome 6: Fitness 38.00
+Genome 7: Fitness 80.39
+Genome 8: Fitness 29.73
+Genome 9: Fitness 87.78
+Genome 10: Fitness 78.37
+Best fitness: 91.86
+Generation 45/100
+Genome 1: Fitness 91.86
+Genome 2: Fitness 91.73
+Genome 3: Fitness 94.87
+Genome 4: Fitness 36.55
+Genome 5: Fitness 16.37
+Genome 6: Fitness 22.81
+Genome 7: Fitness 12.75
+Genome 8: Fitness 70.36
+Genome 9: Fitness 52.09
+Genome 10: Fitness 39.83
+Best fitness: 94.87
+Saved best genome to bestModels/bestGenome__g100_m0.1_p10_uniform_gen100_e2_crossover0_uniform.json
+Generation 46/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 91.86
+Genome 3: Fitness 65.03
+Genome 4: Fitness 51.99
+Genome 5: Fitness 76.76
+Genome 6: Fitness 88.98
+Genome 7: Fitness 91.90
+Genome 8: Fitness 36.38
+Genome 9: Fitness 83.57
+Genome 10: Fitness 24.24
+Best fitness: 94.87
+Generation 47/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 91.90
+Genome 3: Fitness 55.02
+Genome 4: Fitness 30.61
+Genome 5: Fitness 45.76
+Genome 6: Fitness 76.52
+Genome 7: Fitness 9.81
+Genome 8: Fitness 30.13
+Genome 9: Fitness 86.20
+Genome 10: Fitness 37.01
+Best fitness: 94.87
+Generation 48/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 91.90
+Genome 3: Fitness 34.65
+Genome 4: Fitness 41.84
+Genome 5: Fitness 63.55
+Genome 6: Fitness 28.76
+Genome 7: Fitness 92.53
+Genome 8: Fitness 86.32
+Genome 9: Fitness 31.01
+Genome 10: Fitness 90.52
+Best fitness: 94.87
+Generation 49/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 92.53
+Genome 3: Fitness 76.99
+Genome 4: Fitness 53.67
+Genome 5: Fitness 15.90
+Genome 6: Fitness 31.21
+Genome 7: Fitness 35.62
+Genome 8: Fitness 31.69
+Genome 9: Fitness 11.14
+Genome 10: Fitness 62.14
+Best fitness: 94.87
+Generation 50/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 92.53
+Genome 3: Fitness 48.88
+Genome 4: Fitness 87.97
+Genome 5: Fitness 45.00
+Genome 6: Fitness 32.23
+Genome 7: Fitness 81.91
+Genome 8: Fitness 27.37
+Genome 9: Fitness 77.65
+Genome 10: Fitness 35.58
+Best fitness: 94.87
+Generation 51/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 92.53
+Genome 3: Fitness 14.69
+Genome 4: Fitness 72.14
+Genome 5: Fitness 48.52
+Genome 6: Fitness 44.32
+Genome 7: Fitness 81.91
+Genome 8: Fitness 57.00
+Genome 9: Fitness 50.14
+Genome 10: Fitness 8.65
+Best fitness: 94.87
+Generation 52/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 92.53
+Genome 3: Fitness 56.77
+Genome 4: Fitness 81.43
+Genome 5: Fitness 29.67
+Genome 6: Fitness 84.24
+Genome 7: Fitness 45.54
+Genome 8: Fitness 62.00
+Genome 9: Fitness 62.74
+Genome 10: Fitness 30.58
+Best fitness: 94.87
+Generation 53/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 92.53
+Genome 3: Fitness 40.85
+Genome 4: Fitness 66.05
+Genome 5: Fitness 61.45
+Genome 6: Fitness 67.71
+Genome 7: Fitness 47.47
+Genome 8: Fitness 81.26
+Genome 9: Fitness 45.36
+Genome 10: Fitness 52.79
+Best fitness: 94.87
+Generation 54/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 92.53
+Genome 3: Fitness 41.37
+Genome 4: Fitness 42.12
+Genome 5: Fitness 62.15
+Genome 6: Fitness 90.12
+Genome 7: Fitness 69.13
+Genome 8: Fitness 71.96
+Genome 9: Fitness 82.15
+Genome 10: Fitness 53.71
+Best fitness: 94.87
+Generation 55/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 92.53
+Genome 3: Fitness 61.99
+Genome 4: Fitness 40.72
+Genome 5: Fitness 51.90
+Genome 6: Fitness 87.35
+Genome 7: Fitness 70.05
+Genome 8: Fitness 86.35
+Genome 9: Fitness 79.60
+Genome 10: Fitness 72.29
+Best fitness: 94.87
+Generation 56/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 92.53
+Genome 3: Fitness 35.98
+Genome 4: Fitness 35.60
+Genome 5: Fitness 83.87
+Genome 6: Fitness 81.01
+Genome 7: Fitness 60.55
+Genome 8: Fitness 58.41
+Genome 9: Fitness 46.46
+Genome 10: Fitness 38.64
+Best fitness: 94.87
+Generation 57/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 92.53
+Genome 3: Fitness 53.63
+Genome 4: Fitness 32.43
+Genome 5: Fitness 43.30
+Genome 6: Fitness 32.61
+Genome 7: Fitness 85.06
+Genome 8: Fitness 43.03
+Genome 9: Fitness 53.08
+Genome 10: Fitness 56.24
+Best fitness: 94.87
+Generation 58/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 92.53
+Genome 3: Fitness 84.20
+Genome 4: Fitness 93.88
+Genome 5: Fitness 42.00
+Genome 6: Fitness 52.33
+Genome 7: Fitness 64.95
+Genome 8: Fitness 81.91
+Genome 9: Fitness 89.25
+Genome 10: Fitness 62.88
+Best fitness: 94.87
+Generation 59/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 50.34
+Genome 4: Fitness 78.44
+Genome 5: Fitness 72.73
+Genome 6: Fitness 18.47
+Genome 7: Fitness 86.05
+Genome 8: Fitness 56.92
+Genome 9: Fitness 82.77
+Genome 10: Fitness 61.57
+Best fitness: 94.87
+Generation 60/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 92.43
+Genome 4: Fitness 41.95
+Genome 5: Fitness 58.53
+Genome 6: Fitness 13.37
+Genome 7: Fitness 85.77
+Genome 8: Fitness 65.53
+Genome 9: Fitness 56.53
+Genome 10: Fitness 71.18
+Best fitness: 94.87
+Generation 61/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 71.17
+Genome 4: Fitness 39.61
+Genome 5: Fitness 78.13
+Genome 6: Fitness 50.28
+Genome 7: Fitness 86.83
+Genome 8: Fitness 43.92
+Genome 9: Fitness 26.91
+Genome 10: Fitness 55.67
+Best fitness: 94.87
+Generation 62/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 60.79
+Genome 4: Fitness 81.39
+Genome 5: Fitness 38.56
+Genome 6: Fitness 89.55
+Genome 7: Fitness 86.41
+Genome 8: Fitness 88.81
+Genome 9: Fitness 49.90
+Genome 10: Fitness 38.27
+Best fitness: 94.87
+Generation 63/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 12.58
+Genome 4: Fitness 69.53
+Genome 5: Fitness 33.69
+Genome 6: Fitness 76.27
+Genome 7: Fitness 85.37
+Genome 8: Fitness 42.18
+Genome 9: Fitness 49.87
+Genome 10: Fitness 51.27
+Best fitness: 94.87
+Generation 64/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 55.68
+Genome 4: Fitness 81.07
+Genome 5: Fitness 53.90
+Genome 6: Fitness 41.71
+Genome 7: Fitness 91.51
+Genome 8: Fitness 36.99
+Genome 9: Fitness 25.57
+Genome 10: Fitness 38.19
+Best fitness: 94.87
+Generation 65/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 65.33
+Genome 4: Fitness 51.77
+Genome 5: Fitness 18.04
+Genome 6: Fitness 50.96
+Genome 7: Fitness 57.01
+Genome 8: Fitness 52.71
+Genome 9: Fitness 59.52
+Genome 10: Fitness 64.02
+Best fitness: 94.87
+Generation 66/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 63.91
+Genome 4: Fitness 41.39
+Genome 5: Fitness 89.53
+Genome 6: Fitness 78.41
+Genome 7: Fitness 43.29
+Genome 8: Fitness 75.47
+Genome 9: Fitness 52.06
+Genome 10: Fitness 38.94
+Best fitness: 94.87
+Generation 67/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 64.84
+Genome 4: Fitness 68.12
+Genome 5: Fitness 88.21
+Genome 6: Fitness 52.44
+Genome 7: Fitness 8.93
+Genome 8: Fitness 30.53
+Genome 9: Fitness 68.61
+Genome 10: Fitness 12.78
+Best fitness: 94.87
+Generation 68/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 80.93
+Genome 4: Fitness 80.78
+Genome 5: Fitness 49.50
+Genome 6: Fitness 91.62
+Genome 7: Fitness 30.34
+Genome 8: Fitness 84.98
+Genome 9: Fitness 39.01
+Genome 10: Fitness 51.92
+Best fitness: 94.87
+Generation 69/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 38.71
+Genome 4: Fitness 87.14
+Genome 5: Fitness 39.78
+Genome 6: Fitness 70.53
+Genome 7: Fitness 23.71
+Genome 8: Fitness 70.47
+Genome 9: Fitness 77.55
+Genome 10: Fitness 49.10
+Best fitness: 94.87
+Generation 70/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 75.36
+Genome 4: Fitness 74.04
+Genome 5: Fitness 76.53
+Genome 6: Fitness 49.32
+Genome 7: Fitness 39.88
+Genome 8: Fitness 39.20
+Genome 9: Fitness 90.25
+Genome 10: Fitness 49.91
+Best fitness: 94.87
+Generation 71/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 53.98
+Genome 4: Fitness 18.79
+Genome 5: Fitness 42.14
+Genome 6: Fitness 66.09
+Genome 7: Fitness 47.01
+Genome 8: Fitness 58.65
+Genome 9: Fitness 47.85
+Genome 10: Fitness 76.32
+Best fitness: 94.87
+Generation 72/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 20.15
+Genome 4: Fitness 15.15
+Genome 5: Fitness 33.24
+Genome 6: Fitness 51.72
+Genome 7: Fitness 47.85
+Genome 8: Fitness 26.03
+Genome 9: Fitness 43.71
+Genome 10: Fitness 75.52
+Best fitness: 94.87
+Generation 73/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 58.13
+Genome 4: Fitness 71.32
+Genome 5: Fitness 84.86
+Genome 6: Fitness 33.73
+Genome 7: Fitness 66.62
+Genome 8: Fitness 87.02
+Genome 9: Fitness 87.62
+Genome 10: Fitness 70.20
+Best fitness: 94.87
+Generation 74/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 20.09
+Genome 4: Fitness 68.45
+Genome 5: Fitness 43.02
+Genome 6: Fitness 52.50
+Genome 7: Fitness 37.08
+Genome 8: Fitness 52.76
+Genome 9: Fitness 91.72
+Genome 10: Fitness 35.97
+Best fitness: 94.87
+Generation 75/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 68.83
+Genome 4: Fitness 61.36
+Genome 5: Fitness 32.70
+Genome 6: Fitness 47.98
+Genome 7: Fitness 47.00
+Genome 8: Fitness 91.61
+Genome 9: Fitness 28.22
+Genome 10: Fitness 54.07
+Best fitness: 94.87
+Generation 76/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 81.06
+Genome 4: Fitness 63.71
+Genome 5: Fitness 27.29
+Genome 6: Fitness 15.15
+Genome 7: Fitness 75.59
+Genome 8: Fitness 61.68
+Genome 9: Fitness 74.02
+Genome 10: Fitness 49.62
+Best fitness: 94.87
+Generation 77/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 77.98
+Genome 4: Fitness 59.79
+Genome 5: Fitness 45.15
+Genome 6: Fitness 42.29
+Genome 7: Fitness 80.89
+Genome 8: Fitness 62.72
+Genome 9: Fitness 45.52
+Genome 10: Fitness 70.05
+Best fitness: 94.87
+Generation 78/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 18.74
+Genome 4: Fitness 88.40
+Genome 5: Fitness 69.63
+Genome 6: Fitness 13.79
+Genome 7: Fitness 60.99
+Genome 8: Fitness 70.04
+Genome 9: Fitness 51.34
+Genome 10: Fitness 71.90
+Best fitness: 94.87
+Generation 79/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 43.37
+Genome 4: Fitness 48.42
+Genome 5: Fitness 36.94
+Genome 6: Fitness 83.41
+Genome 7: Fitness 24.72
+Genome 8: Fitness 79.04
+Genome 9: Fitness 87.93
+Genome 10: Fitness 85.56
+Best fitness: 94.87
+Generation 80/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 52.08
+Genome 4: Fitness 78.69
+Genome 5: Fitness 86.48
+Genome 6: Fitness 76.83
+Genome 7: Fitness 90.50
+Genome 8: Fitness 81.77
+Genome 9: Fitness 51.48
+Genome 10: Fitness 32.73
+Best fitness: 94.87
+Generation 81/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 47.16
+Genome 4: Fitness 88.44
+Genome 5: Fitness 65.38
+Genome 6: Fitness 52.92
+Genome 7: Fitness 40.74
+Genome 8: Fitness 89.93
+Genome 9: Fitness 32.69
+Genome 10: Fitness 43.46
+Best fitness: 94.87
+Generation 82/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 59.83
+Genome 4: Fitness 50.89
+Genome 5: Fitness 79.65
+Genome 6: Fitness 70.56
+Genome 7: Fitness 66.85
+Genome 8: Fitness 87.63
+Genome 9: Fitness 36.92
+Genome 10: Fitness 61.45
+Best fitness: 94.87
+Generation 83/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 42.77
+Genome 4: Fitness 64.80
+Genome 5: Fitness 53.18
+Genome 6: Fitness 54.11
+Genome 7: Fitness 59.14
+Genome 8: Fitness 71.72
+Genome 9: Fitness 48.35
+Genome 10: Fitness 30.70
+Best fitness: 94.87
+Generation 84/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 85.31
+Genome 4: Fitness 13.79
+Genome 5: Fitness 23.02
+Genome 6: Fitness 32.28
+Genome 7: Fitness 83.09
+Genome 8: Fitness 91.77
+Genome 9: Fitness 81.60
+Genome 10: Fitness 81.85
+Best fitness: 94.87
+Generation 85/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 80.21
+Genome 4: Fitness 86.92
+Genome 5: Fitness 37.20
+Genome 6: Fitness 87.90
+Genome 7: Fitness 29.84
+Genome 8: Fitness 47.35
+Genome 9: Fitness 57.60
+Genome 10: Fitness 9.58
+Best fitness: 94.87
+Generation 86/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 44.12
+Genome 4: Fitness 25.88
+Genome 5: Fitness 87.00
+Genome 6: Fitness 85.04
+Genome 7: Fitness 35.05
+Genome 8: Fitness 11.85
+Genome 9: Fitness 34.28
+Genome 10: Fitness 46.97
+Best fitness: 94.87
+Generation 87/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 56.45
+Genome 4: Fitness 80.23
+Genome 5: Fitness 62.97
+Genome 6: Fitness 64.41
+Genome 7: Fitness 37.79
+Genome 8: Fitness 26.84
+Genome 9: Fitness 32.35
+Genome 10: Fitness 87.78
+Best fitness: 94.87
+Generation 88/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 9.77
+Genome 4: Fitness 88.30
+Genome 5: Fitness 37.55
+Genome 6: Fitness 91.07
+Genome 7: Fitness 41.81
+Genome 8: Fitness 60.31
+Genome 9: Fitness 55.25
+Genome 10: Fitness 80.66
+Best fitness: 94.87
+Generation 89/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 54.51
+Genome 4: Fitness 64.24
+Genome 5: Fitness 19.99
+Genome 6: Fitness 32.26
+Genome 7: Fitness 71.66
+Genome 8: Fitness 83.77
+Genome 9: Fitness 44.71
+Genome 10: Fitness 44.45
+Best fitness: 94.87
+Generation 90/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 71.21
+Genome 4: Fitness 27.74
+Genome 5: Fitness 11.99
+Genome 6: Fitness 78.99
+Genome 7: Fitness 79.30
+Genome 8: Fitness 63.30
+Genome 9: Fitness 54.42
+Genome 10: Fitness 33.58
+Best fitness: 94.87
+Generation 91/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 71.14
+Genome 4: Fitness 83.52
+Genome 5: Fitness 41.20
+Genome 6: Fitness 79.16
+Genome 7: Fitness 30.05
+Genome 8: Fitness 87.87
+Genome 9: Fitness 87.56
+Genome 10: Fitness 66.64
+Best fitness: 94.87
+Generation 92/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 67.51
+Genome 4: Fitness 50.83
+Genome 5: Fitness 59.00
+Genome 6: Fitness 92.43
+Genome 7: Fitness 55.12
+Genome 8: Fitness 25.56
+Genome 9: Fitness 75.46
+Genome 10: Fitness 54.86
+Best fitness: 94.87
+Generation 93/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 16.66
+Genome 4: Fitness 63.76
+Genome 5: Fitness 88.07
+Genome 6: Fitness 76.70
+Genome 7: Fitness 88.27
+Genome 8: Fitness 49.63
+Genome 9: Fitness 31.52
+Genome 10: Fitness 33.31
+Best fitness: 94.87
+Generation 94/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 87.02
+Genome 4: Fitness 63.39
+Genome 5: Fitness 41.79
+Genome 6: Fitness 43.55
+Genome 7: Fitness 12.34
+Genome 8: Fitness 79.71
+Genome 9: Fitness 32.95
+Genome 10: Fitness 20.53
+Best fitness: 94.87
+Generation 95/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 17.58
+Genome 4: Fitness 75.33
+Genome 5: Fitness 27.69
+Genome 6: Fitness 91.68
+Genome 7: Fitness 60.28
+Genome 8: Fitness 22.56
+Genome 9: Fitness 91.03
+Genome 10: Fitness 45.38
+Best fitness: 94.87
+Generation 96/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 77.43
+Genome 4: Fitness 38.13
+Genome 5: Fitness 46.90
+Genome 6: Fitness 59.69
+Genome 7: Fitness 49.32
+Genome 8: Fitness 35.82
+Genome 9: Fitness 55.44
+Genome 10: Fitness 30.14
+Best fitness: 94.87
+Generation 97/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 52.74
+Genome 4: Fitness 26.74
+Genome 5: Fitness 29.54
+Genome 6: Fitness 63.97
+Genome 7: Fitness 89.54
+Genome 8: Fitness 82.59
+Genome 9: Fitness 83.35
+Genome 10: Fitness 37.42
+Best fitness: 94.87
+Generation 98/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 83.75
+Genome 4: Fitness 58.54
+Genome 5: Fitness 51.95
+Genome 6: Fitness 61.39
+Genome 7: Fitness 50.27
+Genome 8: Fitness 79.20
+Genome 9: Fitness 8.78
+Genome 10: Fitness 45.39
+Best fitness: 94.87
+Generation 99/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 44.27
+Genome 4: Fitness 68.39
+Genome 5: Fitness 67.06
+Genome 6: Fitness 33.96
+Genome 7: Fitness 58.10
+Genome 8: Fitness 89.55
+Genome 9: Fitness 42.56
+Genome 10: Fitness 74.88
+Best fitness: 94.87
+Generation 100/100
+Genome 1: Fitness 94.87
+Genome 2: Fitness 93.88
+Genome 3: Fitness 41.80
+Genome 4: Fitness 92.10
+Genome 5: Fitness 36.36
+Genome 6: Fitness 82.90
+Genome 7: Fitness 91.36
+Genome 8: Fitness 55.64
+Genome 9: Fitness 53.44
+Genome 10: Fitness 80.78
+Best fitness: 94.87
+Summary logged for config crossover0_uniform

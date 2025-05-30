@@ -91,13 +91,15 @@ async def evolve(config):
     population_size = config["population_size"]
     generations = config["generations"]
     crossover_method = config["crossover_method"]
+    elite_count = config["elites"]
     log_suffix = config.get("log_suffix", "default")
 
     log_path = os.path.join(LOG_DIR, f"log_{log_suffix}.txt")
-    logger.addHandler(logging.FileHandler(log_path))
+    file_handler = logging.FileHandler(log_path)
+    logger.addHandler(file_handler)
 
     # Initialise population
-    best_model_fileName = f"_g{genome_length}_m{mutation_rate}_p{population_size}_{crossover_method}_gen{generations}_{log_suffix}"
+    best_model_fileName = f"_g{genome_length}_m{mutation_rate}_p{population_size}_{crossover_method}_gen{generations}_e{elite_count}_{log_suffix}"
     best_loaded = load_best_genome(best_model_fileName)
     population = [best_loaded] if best_loaded else []
     while len(population) < population_size:
@@ -116,8 +118,6 @@ async def evolve(config):
                 logger.info(f"Genome {i + 1}: Fitness {fitness:.2f}")
 
             scored_population.sort(reverse=True, key=lambda x: x[0])
-
-            elite_count = max(1, population_size // 5)
             next_generation = [genome for _, genome in scored_population[:elite_count]]
 
             while len(next_generation) < population_size:
@@ -146,6 +146,8 @@ async def evolve(config):
 
         summary_file.write(f"{log_suffix},{genome_length},{mutation_rate},{population_size},{crossover_method},{generations},{best_overall_fitness:.2f}\n")
         logger.info(f"Summary logged for config {log_suffix}")
+        logger.removeHandler(file_handler)
+        file_handler.close()
 
 if __name__ == "__main__": 
     async def main():
@@ -156,10 +158,10 @@ if __name__ == "__main__":
         args, unknown = parser.parse_known_args()
 
         if args.batch:
-            generations = 5
+            generations = 100
 
             # 1. Genome length experiment
-            for i, gl in enumerate([25, 50, 100, 200]):
+            for i, gl in enumerate([100, 200]):
                 config = {
                     "config_name":"genomeLengthTest",
                     "genome_length": gl,
@@ -167,6 +169,7 @@ if __name__ == "__main__":
                     "population_size": 10,
                     "generations": generations,
                     "crossover_method": "uniform",
+                    "elites":2,
                     "log_suffix": f"length{i}_{gl}"
                 }
                 await evolve(config)
@@ -180,7 +183,35 @@ if __name__ == "__main__":
                     "population_size": 10,
                     "generations": generations,
                     "crossover_method": "uniform",
+                    "elites":2,
                     "log_suffix": f"mut{i}_{mr}"
+                }
+                await evolve(config)
+            # 3. Population rate experiment
+            pop_elite_pairs = [(10, 1), (25, 2), (50, 3), (100, 5)]
+            for i, (pop, elites) in enumerate(pop_elite_pairs):
+                config = {
+                    "config_name": "pop_eliteTest",
+                    "genome_length": 100,
+                    "mutation_rate": 0.1,
+                    "population_size": pop,
+                    "generations": generations,
+                    "crossover_method": "uniform",
+                    "elites": elites,
+                    "log_suffix": f"pop{i}_p{pop}_e{elites}"
+                }
+                await evolve(config)
+            # 4. Cross over experiment
+            for i, cross in enumerate(["uniform","one-point"]):
+                config = {
+                    "config_name":"crossoverTest",
+                    "genome_length": 100,
+                    "mutation_rate": 0.1,
+                    "population_size": 10,
+                    "generations": generations,
+                    "crossover_method": cross,
+                    "elites":2,
+                    "log_suffix": f"crossover{i}_{cross}"
                 }
                 await evolve(config)
 

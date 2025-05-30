@@ -1,0 +1,14 @@
+length0_25,25,0.1,10,uniform,100,64.19
+length1_50,50,0.1,10,uniform,100,85.18
+length0_100,100,0.1,10,uniform,100,93.03
+length1_200,200,0.1,10,uniform,100,93.02
+mut0_0.01,100,0.01,10,uniform,100,95.67
+mut1_0.05,100,0.05,10,uniform,100,94.24
+mut2_0.1,100,0.1,10,uniform,100,93.74
+mut3_0.2,100,0.2,10,uniform,100,92.30
+pop0_p10_e1,100,0.1,10,uniform,100,93.09
+pop1_p25_e2,100,0.1,25,uniform,100,93.55
+pop2_p50_e3,100,0.1,50,uniform,100,94.34
+pop3_p100_e5,100,0.1,100,uniform,100,94.48
+crossover0_uniform,100,0.1,10,uniform,100,94.87
+crossover1_one-point,100,0.1,10,one-point,100,92.55
