@@ -1,0 +1,5 @@
+config,best_fitness,network_structure
+pop_20,8.651250000000001,"nodes:51, connections:348"
+weightmut_0.05,7.602083333333333,"nodes:51, connections:348"
+weightmut_0.1,7.256875,"nodes:51, connections:348"
+weightmut_0.3,6.743541666666666,"nodes:51, connections:348"
