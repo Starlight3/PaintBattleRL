@@ -1,4 +1,0 @@
-config,best_fitness,network_structure
-weightmut_0.05,5.951458333333334,"nodes:51, connections:348"
-weightmut_0.1,5.732083333333334,"nodes:51, connections:348"
-weightmut_0.3,10.856041666666668,"nodes:51, connections:348"
