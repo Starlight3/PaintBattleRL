@@ -1,8 +1,0 @@
-model_file,coverage
-crossover_single_point.pt,3
-crossover_uniform.pt,3
-mutation_0.01.pt,1
-mutation_0.05.pt,11
-mutation_0.1.pt,4
-population_10.pt,6
-population_20.pt,5
