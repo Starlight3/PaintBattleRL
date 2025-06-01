@@ -5,6 +5,19 @@ import asyncio
 import json
 from itertools import product
 import os
+import logging
+
+MODEL_DIR = "bestModels"
+LOG_DIR = "logs"
+os.makedirs(LOG_DIR, exist_ok=True)
+os.makedirs(MODEL_DIR, exist_ok=True)
+
+logger = logging.getLogger("genetic-agent")
+logger.setLevel(logging.INFO)
+log_handler = logging.FileHandler(os.path.join(LOG_DIR, "experiment.log"))
+log_handler.setFormatter(logging.Formatter('%(asctime)s %(message)s'))
+logger.addHandler(log_handler)
+
 
 POPULATION_FILE = "population_data.json"
 POPULATION_SIZE = 15
