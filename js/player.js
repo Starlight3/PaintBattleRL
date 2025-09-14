@@ -1,14 +1,8 @@
 ﻿PB.player = (function(obj) {
-  function rand(num) {
-    return Math.floor(Math.random() * num);
-  }
-
   var DEFAULT_RADIUS = 25,
-    DEFAULT_SPEED = 2,
-    DEFAULT_TURN_SPEED = 3,
-    DEFAULT_IMAGE_OFFSET = DEFAULT_RADIUS / 2,
-    JUMP_HEIGHT = 5,
-    GRAVITY = 0.1;
+    DEFAULT_SPEED = 20,
+    DEFAULT_TURN_SPEED = 30,
+    DEFAULT_IMAGE_OFFSET = DEFAULT_RADIUS / 2;
 
   // constructor
   function player(options) {
@@ -23,19 +17,16 @@
     this.speed = DEFAULT_SPEED;
     this.radius = DEFAULT_RADIUS;
     this.drawing = true;
-    this.jumping = false;
-    this.stunned = false;
-    this.freezed = false;
-    this.jumpSpeed = 0;
     this.imgOffset = DEFAULT_IMAGE_OFFSET;
   }
+  
   extend(obj, player, {
     handlers: [],
     addAngle: function(degree) {
       this.degree = this.degree + (degree % 360);
     },
     canDraw: function() {
-      return !this.jumping && this.drawing;
+      return this.drawing;
     },
     resolve: function(speed) {
       // degrees = radians * 180 / Math.PI;
@@ -44,62 +35,32 @@
       y = this.position.y + Math.sin(radian) * speed;
       return new PB.vector(x, y);
     },
-    jump: function(timer) {
-      this.canCollide = false;
-      this.jumping = true;
-      this.runHandlers(timer);
-      this.jumpSpeed = JUMP_HEIGHT * -1;
-      this.addAngle(180);
-    },
-    land: function(timer) {
-      this.canCollide = true;
-      this.jumping = false;
-      this.runHandlers(timer);
-    },
-    runHandlers: function(timer) {
-      this.handlers.forEach(x => {
-        timer.clearTimeout(x) && x.fn();
-      });
-      this.handlers = [];
-    },
     move: function(timer) {
       var me = this;
 
       if (me.isComputer) {
-        me.addAngle(rand(20) - 10);
+        // Random movement for computer players (not used in simplified version)
+        me.addAngle(Math.floor(Math.random() * 20) - 10);
       } else if (PB.keys[me.left]) {
         me.addAngle(-DEFAULT_TURN_SPEED);
       } else if (PB.keys[me.right]) {
         me.addAngle(DEFAULT_TURN_SPEED);
       }
 
-      if (!me.freezed) me.position = me.resolve(me.stunned ? me.speed / 2 : me.speed);
-
-      if (me.jumping) {
-        me.jumpSpeed += GRAVITY;
-        me.imgOffset -= me.jumpSpeed;
-
-        if (me.imgOffset < DEFAULT_IMAGE_OFFSET) {
-          me.imgOffset = DEFAULT_IMAGE_OFFSET;
-          me.land(timer);
-          me.stunned = true;
-          me.handlers.push(
-            timer.setTimeout(() => {
-              me.stunned = false;
-            }, 5000)
-          );
-        }
-      }
+      // Move player in current direction
+      me.position = me.resolve(me.speed);
     },
     restrict: function(bounds) {
       var me = this;
 
+      // Keep player within bounds
       if (me.position.x < bounds.left + me.radius) me.position.x = bounds.left + me.radius;
       else if (me.position.x > bounds.right - me.radius) me.position.x = bounds.right - me.radius;
 
       if (me.position.y < bounds.top + me.radius) me.position.y = bounds.top + me.radius;
       else if (me.position.y > bounds.bottom - me.radius) me.position.y = bounds.bottom - me.radius;
-    },
+    }
   });
+  
   return player;
 })(PB.object);

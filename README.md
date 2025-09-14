@@ -1,6 +1,8 @@
 Paint Battle
 =======
 
+Forked from A1rPun to try some reinforcement learning on this game.
+
 # [Play](https://A1rPun.github.io/PaintBattle)
 
 **How to play**
@@ -9,14 +11,3 @@ Paint Battle
 
 Inspired by the original game **Battle Painters**
 ![original.jpg](/img/original.jpg)
-
-# TODO
-- Menu
-  - Battle mode, choose player name/color/controls|AI
-  - Ranking mode, highscore percentages (50% is initial highscore, 10 entries with 5% difference)
-- Before start of the game, countdown
-- Flashing yellow arrows with black border instead of a black line
-- Pickups need images
-  - Magic brush, Circle trail behind player
-  - Magic shoe, Sparkle trail behind player
-  - Magic clock, Dizzy effect while freezed (grey player with yellow sparkles)

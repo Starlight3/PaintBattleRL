@@ -1,56 +1,29 @@
-﻿(function() {
+﻿// Randomize initial player position within 600x600 bounds
+var randomX = Math.floor(Math.random() * 600);
+var randomY = Math.floor(Math.random() * 600);
+var randomDegree = Math.floor(Math.random() * 360);
+
+(function() {
   var midX = 400,
     midY = 300,
     bounds = {
       top: 0,
-      right: 800,
+      right: 600,
       bottom: 600,
       left: 0,
     },
+    // Only one player for RL agent to control
     players = [
       new PB.player({
-        x: midX - 30,
-        y: midY - 30,
-        degree: 225,
+        x: randomX,
+        y: randomY,
+        degree: randomDegree,
         left: 37,
         right: 39,
         color: '#FF5EAA',
-        name: 'Player 1',
-        //isComputer: true
-      }),
-      /* */
-      new PB.player({
-        x: midX + 30,
-        y: midY - 30,
-        degree: 315,
-        left: 65,
-        right: 68,
-        color: '#299EFE',
-        name: 'Player 2',
-        isComputer: true,
-      }),
-      /* */
-      new PB.player({
-        x: midX - 30,
-        y: midY + 30,
-        degree: 135,
-        left: 74,
-        right: 76,
-        color: '#FDBC56',
-        name: 'Player 3',
-        isComputer: true,
-      }),
-      new PB.player({
-        x: midX + 30,
-        y: midY + 30,
-        degree: 45,
-        left: 100,
-        right: 102,
-        color: '#67DB66',
-        name: 'Player 4',
-        isComputer: true,
-      }),
-      /* */
+        name: 'RL Player',
+        isComputer: false  // Will be controlled via WebSocket
+      })
     ];
 
   function makeImages(images, callback) {
@@ -71,49 +44,7 @@
       result[key] = img;
     }
   }
-  function makeAudio(sounds, callback) {
-    var result = {},
-      loads = 0,
-      keys = Object.keys(sounds),
-      num = keys.length,
-      cb = function() {
-        if (++loads >= num) callback(result);
-      };
 
-    for (var i = num; i--; ) {
-      var key = keys[i],
-        snd = new Audio();
-      snd.oncanplaythrough = cb;
-      snd.onerror = cb;
-      snd.src = sounds[key];
-      result[key] = snd;
-    }
-  }
-  PB.playSound = function(snd, loop) {
-    if (SneekMe.sound && SneekMe.sound[snd]) {
-      var sound = SneekMe.sound[snd];
-
-      try {
-        sound.currentTime = 0;
-      } catch (e) {}
-
-      if (loop) {
-        if (typeof sound.loop === 'boolean') {
-          sound.loop = true;
-        } else {
-          sound.addEventListener(
-            'ended',
-            function() {
-              sound.currentTime = 0;
-              sound.play();
-            },
-            false
-          );
-        }
-      }
-      sound.play();
-    }
-  };
   PB.store = {
     getItem: function(key) {
       if (localStorage) {
@@ -144,22 +75,10 @@
       bg: 'img/canvas.png',
       brush: 'img/brush.png',
       clean: 'img/clean.png',
-      pickup: 'img/present.png',
-      plaster: 'img/plaster.png',
-      scroll: 'img/scroll.png',
       shadow: 'img/shadow.png',
     },
     init
   );
-  /*
-    makeAudio({
-        //menu: 'snd/music1.mp3',
-        bg: 'snd/music2.mp3',
-        //win: 'snd/music3.mp3'
-    }, function (sounds) {
-        PB.sound = sounds;
-    });
-	*/
 
   function drawBackground() {
     var bgCanvas = document.getElementById('BG'),
@@ -172,6 +91,10 @@
   function init(images) {
     PB.keys = [];
     PB.images = images;
+    
+    // Initialize WebSocket communication for RL agent
+    PB.initWebSocket();
+    
     document.addEventListener('keydown', function(e) {
       e = e ? e : window.event;
       PB.keys[e.keyCode] = true;
@@ -181,6 +104,7 @@
       e = e ? e : window.event;
       PB.keys[e.keyCode] = false;
     });
+    
     drawBackground();
     PB.startGame(bounds, players);
   }

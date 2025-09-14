@@ -1,14 +1,16 @@
-﻿PB.startGame = function(bounds, players) {
+﻿PB.FAST_MODE = true; // Enable fast mode for training
+
+PB.startGame = function(bounds, players) {
   var canvas = document.getElementById('PB'),
     ctx = canvas.getContext('2d'),
     propCanvas = document.getElementById('Prop'),
     propCtx = propCanvas.getContext('2d'),
     pause = false,
-    pickups = [],
-    gameState = new PB.timer();
+    gameState = new PB.timer(),
+    frameCounter = 0;
 
-  const GAME_INTERVAL = 90 * 1000;
-  const PICKUP_INTERVAL = 25 * 1000;
+  // Shorter game duration for faster training
+  const GAME_INTERVAL = PB.FAST_MODE ? 30 * 1000 : 90 * 1000;
 
   init();
   function init() {
@@ -29,6 +31,11 @@
   }
 
   function countdown() {
+    if (PB.FAST_MODE) {
+      startGame();
+      return;
+    }
+    
     let time = 3;
     const x = bounds.right / 2 - 70;
     const y = bounds.bottom / 2 + 70;
@@ -55,34 +62,31 @@
   }
 
   function startGame() {
-    gameState.setInterval(update);
+    // Use higher FPS in fast mode
+    const fps = PB.FAST_MODE ? 10 : 30;
+    gameState.setInterval(update, 1000/fps);
     gameState.setTimeout(endGame, GAME_INTERVAL);
-    gameState.setInterval(function() {
-      pickups.push(new PB.pickup(bounds));
-    }, PICKUP_INTERVAL);
   }
 
   function endGame() {
     gameState.stop();
     const result = getGameResult();
     propCtx.clearRect(0, 0, bounds.right, bounds.bottom);
-    const margin = 96;
-    propCtx.drawImage(
-      PB.images.scroll,
-      margin,
-      margin,
-      bounds.right - margin * 2,
-      bounds.bottom - margin * 2
-    );
-
-    propCtx.font = '32px Verdana';
-    const theX = bounds.right / 2 - 180;
-    result.forEach((x, i) => {
-      const theY = i * 48 + 210;
-      propCtx.fillStyle = x.color || '#000';
-      propCtx.fillText(`${x.name}:`, theX, theY);
-      propCtx.fillText(`${x.percent}% ${x.winner ? '🏆' : ''}`, theX + 250, theY);
-    });
+    
+    // Display final score only in normal mode
+    if (PB.FAST_MODE) {
+      propCtx.font = '32px Verdana';
+      propCtx.fillStyle = '#000';
+      propCtx.fillText(`Coverage: ${result[0].percent}%`, bounds.right / 2 - 120, bounds.bottom / 2);
+    }
+    
+    // Send final result to RL agent
+    if (PB.sendGameState) {
+      PB.sendGameState({
+        event: 'GAME_OVER',
+        coverage: result[0].percent
+      });
+    }
   }
 
   function updatePlayers() {
@@ -90,20 +94,6 @@
       var player = players[i];
       player.move(gameState);
       player.restrict(bounds);
-
-      if (player.canCollide) {
-        player.canCollide = false;
-        var collision = player.checkCircleCollision(players).collision,
-          j = collision.length;
-        player.canCollide = true;
-
-        if (j) {
-          for (; j--; ) {
-            collision[j].jump(gameState);
-          }
-          player.jump(gameState);
-        }
-      }
     }
   }
 
@@ -129,15 +119,6 @@
         player.radius * 2
       );
 
-      if (player.stunned) {
-        propCtx.drawImage(
-          PB.images.plaster,
-          x - player.radius / 2,
-          y - player.radius,
-          player.radius,
-          player.radius
-        );
-      }
 
       //draw heading direction line
       propCtx.beginPath();
@@ -153,43 +134,93 @@
     }
   }
 
-  function updatePickup(pickup) {
-    var collisions = pickup.checkCircleCollision(players);
+  // function drawDebug() {
+  //   propCtx.fillStyle = '#f00';
+  //   propCtx.font = '11px Verdana';
 
-    if (collisions.collision.length) {
-      pickup.get(collisions, gameState, ctx, bounds);
-      pickups.splice(pickups.indexOf(pickup), 1);
+  //   for (var i = 0, l = gameState.moments.length; i < l; i++) {
+  //     propCtx.fillText(gameState.moments[i].delta | 0, 10, i * 15 + 30);
+  //   }
+  // }
+
+  function reshapeFlatArrayTo2D(flatArray, width) {
+    const grid2D = [];
+    for (let i = 0; i < flatArray.length; i += width) {
+      grid2D.push(flatArray.slice(i, i + width));
     }
+    return grid2D;
   }
 
-  function drawPickup(pickup) {
-    propCtx.drawImage(
-      PB.images.pickup,
-      pickup.position.x - pickup.radius,
-      pickup.position.y - pickup.radius,
-      pickup.radius * 2,
-      pickup.radius * 2
-    );
-  }
+  // function printGrid2D(grid2D) {
+  //   for (const row of grid2D) {
+  //     console.log(row.map(cell => cell.toString()).join(' '));
+  //   }
+  // }
 
-  function drawDebug() {
-    propCtx.fillStyle = '#f00';
-    propCtx.font = '11px Verdana';
+  function imageDataToPlayerGridFromRgbaList(rgbaList, players, playerIndex, strideX, strideY, width, height) {
+    const playerColor = hexToRgb(players[playerIndex].color);
+    const result = [];
 
-    for (var i = 0, l = gameState.moments.length; i < l; i++) {
-      propCtx.fillText(gameState.moments[i].delta | 0, 10, i * 15 + 30);
+    for (let y = 0; y < height; y += strideY) {
+      for (let x = 0; x < width; x += strideX) {
+        const index = y * width + x;
+        const rgba = rgbaList[index];
+
+        if (!rgba || rgba[3] === 0 || isBlack(rgba)) {
+          result.push(0); // unpainted
+        } else if (getRgbDifference(playerColor, rgba.slice(0, 3)) < 30) {
+          result.push(1); // painted by this player
+        } else {
+          result.push(2); // painted by others
+        }
+      }
     }
+
+    return result;
   }
+
+  function calculateCoverageFromFlatGrid(flatGrid) {
+    let paintedByThisPlayer = 0;
+    const totalPixels = flatGrid.length;
+
+    for (let cell of flatGrid) {
+      if (cell === 0) paintedByThisPlayer++;
+    }
+
+    return (paintedByThisPlayer / totalPixels) * 100;
+  }
+  let frameCount = 0;
+  const frameSkip = 20;
+  const strideX = 20;
 
   function update() {
     propCtx.clearRect(0, 0, bounds.right, bounds.bottom);
     updatePlayers();
     drawPlayers();
-    pickups.forEach(pickup => {
-      updatePickup(pickup);
-      drawPickup(pickup);
-    });
     // drawDebug();
+    if(PB.sendGameState) {
+      frameCount++;
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      
+      const rgbaList = imageDataToRgbaList(imageData.data);
+      const playerIndex = 0;
+      //20 is the stride, to reduce the array size, to improve frame processing speed
+      const flatGrid = imageDataToPlayerGridFromRgbaList(rgbaList, players, playerIndex, strideX, strideX, canvas.width, canvas.height);
+      const grid2D = reshapeFlatArrayTo2D(flatGrid, Math.floor(canvas.width / 20));
+      const coverage = calculateCoverageFromFlatGrid(flatGrid);
+      
+      PB.sendGameState({
+        event: 'STATE_UPDATE',
+        player: {
+          x: players[playerIndex].position.x,
+          y: players[playerIndex].position.y,
+          degree: ((players[playerIndex].degree % 360) +360) % 360,
+          canDraw: players[playerIndex].canDraw()
+        },
+        coverage:coverage, 
+        canvas: grid2D
+        });
+    }
   }
 
   function rgbToHex(r, g, b) {

@@ -1,5 +1,5 @@
 ﻿PB.timer = (function({ requestAnimationFrame, cancelAnimationFrame }) {
-  const fps60 = 1000 / 60;
+  const fps60 = 1000 / 10;
 
   function moment(loop, fn, interval) {
     this.loop = loop;
