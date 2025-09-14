@@ -193,6 +193,7 @@ class HeadlessBattlePainterRL:
 
     def sync_canvas(self, player_x, player_y):
         """Approximate canvas state based on player position"""
+        # NOT USED IN THIS VERSION
         # use this to estimate density information
         rows = len(self.canvas)
         cols = len(self.canvas[0])
@@ -331,7 +332,9 @@ class HeadlessBattlePainterRL:
         """Main game loop to connect with the headless game server"""
         reconnect_delay = 2  # Initial reconnect delay in seconds
         max_reconnect_delay = 30  # Maximum reconnect delay
-        
+        with open('training_coverage.csv', 'w', newline='') as f:
+            f.write("episode,final_coverage,avg_coverage,best_coverage,epsilon,episodes_per_sec\n")
+            
         while self.episode < self.max_episodes:
             try:
                 logger.info(f"Attempting to connect to server at {self.server_uri}")
@@ -407,7 +410,7 @@ class HeadlessBattlePainterRL:
                                 # Update previous state and action
                                 self.previous_state = self.current_state
                                 self.previous_action = action_index
-                                self.previous_coverage = self.current_coverage
+                                self.previous_coverage = self.current_coverage                                    
                                 
                             elif game_data["event"] == "GAME_OVER":
                                 self.done = True
@@ -454,12 +457,13 @@ class HeadlessBattlePainterRL:
                                     avg_coverage = sum(self.recent_coverages) / len(self.recent_coverages) if self.recent_coverages else 0
                                     elapsed = time.time() - self.start_time
                                     eps_per_sec = self.episode / elapsed if elapsed > 0 else 0
-                                    logger.info(f"Episode {self.episode}: "
-                                          f"Coverage {final_coverage*100:.2f}%, "
-                                          f"Avg {avg_coverage*100:.2f}%, "
-                                          f"Best {self.best_coverage*100:.2f}%, "
-                                          f"Epsilon {self.agent.epsilon:.4f}, "
-                                          f"Speed {eps_per_sec:.2f} eps/s")
+                                    with open('training_coverage.csv', 'a', newline='') as f:
+                                        f.write(f"{self.episode},"
+                                                f"{final_coverage*100:.2f},"
+                                                f"{avg_coverage*100:.2f},"
+                                                f"{self.best_coverage*100:.2f},"
+                                                f"{self.agent.epsilon:.4f},"
+                                                f"{eps_per_sec:.2f}\n")
                                 
                                 # Periodically save model regardless of performance
                                 # current_time = time.time()

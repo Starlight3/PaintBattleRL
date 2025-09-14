@@ -1,18 +1,23 @@
-﻿(function() {
+﻿// Randomize initial player position within 600x600 bounds
+var randomX = Math.floor(Math.random() * 600);
+var randomY = Math.floor(Math.random() * 600);
+var randomDegree = Math.floor(Math.random() * 360);
+
+(function() {
   var midX = 400,
     midY = 300,
     bounds = {
       top: 0,
-      right: 800,
+      right: 600,
       bottom: 600,
       left: 0,
     },
     // Only one player for RL agent to control
     players = [
       new PB.player({
-        x: midX,
-        y: midY,
-        degree: 225,
+        x: randomX,
+        y: randomY,
+        degree: randomDegree,
         left: 37,
         right: 39,
         color: '#FF5EAA',

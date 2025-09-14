@@ -18,13 +18,7 @@ PB.startGame = function(bounds, players) {
     canvas.height = bounds.bottom;
     propCanvas.width = bounds.right;
     propCanvas.height = bounds.bottom;
-    
-    // Skip countdown in fast mode
-    if (PB.FAST_MODE) {
-      startGame();
-    } else {
-      countdown();
-    }
+    countdown();
 
     PB.keyHandler = function(key) {
       const space = 32;
@@ -109,91 +103,124 @@ PB.startGame = function(bounds, players) {
         solved = player.resolve(player.radius),
         x = player.position.x | 0,
         y = player.position.y | 0;
-      
-      // Only draw visuals if not in fast mode
-      // use if (!PB.FAST_MODE) to skip drawing in fast mode. if (true) to always draw
-      if (true) {
-        // Draw shadow
-        propCtx.drawImage(
-          PB.images.shadow,
-          x - player.radius,
-          y - player.radius,
-          player.radius * 2,
-          player.radius * 2
-        );
-        
-        // Draw player
-        propCtx.drawImage(
-          player.drawing ? PB.images.brush : PB.images.clean,
-          x - player.radius,
-          y - player.radius - player.imgOffset,
-          player.radius * 2,
-          player.radius * 2
-        );
+      //draw image
+      propCtx.drawImage(
+        PB.images.shadow,
+        x - player.radius,
+        y - player.radius,
+        player.radius * 2,
+        player.radius * 2
+      );
+      propCtx.drawImage(
+        player.drawing ? PB.images.brush : PB.images.clean,
+        x - player.radius,
+        y - player.radius - player.imgOffset,
+        player.radius * 2,
+        player.radius * 2
+      );
 
-        // Draw heading direction line
-        propCtx.beginPath();
-        propCtx.moveTo(x, y);
-        propCtx.lineTo(solved.x, solved.y);
-        propCtx.stroke();
-      }
-      
-      // Always draw paint (needed for coverage calculations)
-      if (player.canDraw()) {
-        ctx.fillStyle = player.color;
-        ctx.beginPath();
-        ctx.arc(player.position.x | 0, player.position.y | 0, player.radius, 0, 180 * Math.PI, false);
-        ctx.fill();
-      }
+
+      //draw heading direction line
+      propCtx.beginPath();
+      propCtx.moveTo(x, y);
+      propCtx.lineTo(solved.x, solved.y);
+      propCtx.stroke();
+      //draw paint
+      if (!player.canDraw()) continue;
+      ctx.fillStyle = player.color;
+      ctx.beginPath();
+      ctx.arc(player.position.x | 0, player.position.y | 0, player.radius, 0, 180 * Math.PI, false);
+      ctx.fill();
     }
   }
+
+  // function drawDebug() {
+  //   propCtx.fillStyle = '#f00';
+  //   propCtx.font = '11px Verdana';
+
+  //   for (var i = 0, l = gameState.moments.length; i < l; i++) {
+  //     propCtx.fillText(gameState.moments[i].delta | 0, 10, i * 15 + 30);
+  //   }
+  // }
+
+  function reshapeFlatArrayTo2D(flatArray, width) {
+    const grid2D = [];
+    for (let i = 0; i < flatArray.length; i += width) {
+      grid2D.push(flatArray.slice(i, i + width));
+    }
+    return grid2D;
+  }
+
+  // function printGrid2D(grid2D) {
+  //   for (const row of grid2D) {
+  //     console.log(row.map(cell => cell.toString()).join(' '));
+  //   }
+  // }
+
+  function imageDataToPlayerGridFromRgbaList(rgbaList, players, playerIndex, strideX, strideY, width, height) {
+    const playerColor = hexToRgb(players[playerIndex].color);
+    const result = [];
+
+    for (let y = 0; y < height; y += strideY) {
+      for (let x = 0; x < width; x += strideX) {
+        const index = y * width + x;
+        const rgba = rgbaList[index];
+
+        if (!rgba || rgba[3] === 0 || isBlack(rgba)) {
+          result.push(0); // unpainted
+        } else if (getRgbDifference(playerColor, rgba.slice(0, 3)) < 30) {
+          result.push(1); // painted by this player
+        } else {
+          result.push(2); // painted by others
+        }
+      }
+    }
+
+    return result;
+  }
+
+  function calculateCoverageFromFlatGrid(flatGrid) {
+    let paintedByThisPlayer = 0;
+    const totalPixels = flatGrid.length;
+
+    for (let cell of flatGrid) {
+      if (cell === 0) paintedByThisPlayer++;
+    }
+
+    return (paintedByThisPlayer / totalPixels) * 100;
+  }
+  let frameCount = 0;
+  const frameSkip = 20;
+  const strideX = 20;
 
   function update() {
     propCtx.clearRect(0, 0, bounds.right, bounds.bottom);
     updatePlayers();
     drawPlayers();
-    
-    // Send game state to RL agent (but not every frame in fast mode)
-    if (PB.sendGameState) {
-      frameCounter++;
+    // drawDebug();
+    if(PB.sendGameState) {
+      frameCount++;
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       
-      // In fast mode, only send every 3rd frame to reduce overhead
-      if (!PB.FAST_MODE || frameCounter % 1 === 0) {
-        const player = players[0];
-        const imageData = ctx.getImageData(0, 0, bounds.right, bounds.bottom);
-        
-        // Calculate current coverage
-        const coverage = calculateCoverage(imageData);
-        
-        // Send minimal state information
-        PB.sendGameState({
-          event: 'STATE_UPDATE',
-          player: {
-            x: player.position.x,
-            y: player.position.y,
-            degree: player.degree,
-            canDraw: player.canDraw()
-          },
-          coverage: coverage
+      const rgbaList = imageDataToRgbaList(imageData.data);
+      const playerIndex = 0;
+      //20 is the stride, to reduce the array size, to improve frame processing speed
+      const flatGrid = imageDataToPlayerGridFromRgbaList(rgbaList, players, playerIndex, strideX, strideX, canvas.width, canvas.height);
+      const grid2D = reshapeFlatArrayTo2D(flatGrid, Math.floor(canvas.width / 20));
+      const coverage = calculateCoverageFromFlatGrid(flatGrid);
+      
+      PB.sendGameState({
+        event: 'STATE_UPDATE',
+        player: {
+          x: players[playerIndex].position.x,
+          y: players[playerIndex].position.y,
+          degree: ((players[playerIndex].degree % 360) +360) % 360,
+          canDraw: players[playerIndex].canDraw()
+        },
+        coverage:coverage, 
+        canvas: grid2D
         });
-      }
     }
-  }
-
-  // Rest of the functions remain the same...
-  function calculateCoverage(imageData) {
-    const data = imageData.data;
-    let paintedPixels = 0;
-    const totalPixels = data.length / 4;
-    
-    // Count non-transparent pixels (painted areas)
-    for (let i = 3; i < data.length; i += 4) {
-      if (data[i] > 0) {
-        paintedPixels++;
-      }
-    }
-    
-    return (paintedPixels / totalPixels) * 100;
   }
 
   function rgbToHex(r, g, b) {
@@ -222,6 +249,10 @@ PB.startGame = function(bounds, players) {
     return rgbaList;
   }
 
+  function getRgbDifference([r1, g1, b1], [r2, g2, b2]) {
+    return Math.sqrt(Math.pow(r2 - r1, 2) + Math.pow(g2 - g1, 2) + Math.pow(b2 - b1, 2));
+  }
+
   function isBlack([r, g, b, a]) {
     return !r && !g && !b;
   }
@@ -231,22 +262,38 @@ PB.startGame = function(bounds, players) {
     const rgbList = imageDataToRgbaList(imageData);
     const playerColors = players.map(x => hexToRgb(x.color));
     const amountOfPixels = rgbList.length;
-    
-    // Calculate painted pixels
-    let paintedPixels = 0;
-    for (let i = 0; i < rgbList.length; i++) {
-      if (!isBlack(rgbList[i])) {
-        paintedPixels++;
+    const gameColors = rgbList.reduce((acc, cur) => {
+      let playerColor;
+      if (isBlack(cur)) {
+        playerColor = rgbToHex(...cur);
+      } else {
+        const colorDiffs = playerColors.map(x => ({
+          color: x,
+          difference: getRgbDifference(x, cur),
+        }));
+        const leastDiffer = colorDiffs.sort((a, b) => a.difference - b.difference)[0].color;
+        playerColor = rgbToHex(...leastDiffer);
       }
-    }
-    
-    // Calculate percentage
-    const percent = Math.round((paintedPixels * 100) / amountOfPixels);
-    
-    return [{
-      name: players[0].name,
-      color: players[0].color,
-      percent: percent
-    }];
+      if (acc[playerColor]) {
+        acc[playerColor]++;
+      } else {
+        acc[playerColor] = 1;
+      }
+      return acc;
+    }, {});
+    const result = players.map(player => ({
+      name: player.name,
+      color: player.color,
+      percent: Math.round((gameColors[player.color] * 100) / amountOfPixels),
+    }));
+    const highestScore = result.slice().sort((a, b) => b.percent - a.percent)[0].percent;
+    result.forEach(x => {
+      if (x.percent === highestScore) x.winner = true;
+    });
+    result.push({
+      name: 'Total',
+      percent: result.reduce((acc, cur) => acc + cur.percent, 0),
+    });
+    return result;
   }
 };
