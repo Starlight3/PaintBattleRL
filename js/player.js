@@ -15,6 +15,7 @@
     //Default properties that can be overridden
     obj.call(this, options && options.x, options && options.y);
     this.name = 'Player';
+    
     this.degree = 0;
 
     if (arguments[0]) for (var prop in arguments[0]) this[prop] = arguments[0][prop];

@@ -28,6 +28,28 @@
     };
   }
 
+  function drawTimer() {
+    // Calculate remaining time from the total GAME_INTERVAL
+    const elapsedMs = gameState.time.elapsed || 0;
+    const remainingSeconds = Math.ceil((GAME_INTERVAL - elapsedMs) / 1000);
+    
+    // Ensure the timer doesn't display a negative number
+    const displayTime = Math.max(0, remainingSeconds);
+
+    // Set the position and style for the timer text
+    const x = bounds.right / 2; // Center of the screen
+    const y = 40;               // 40 pixels from the top
+    propCtx.font = 'bold 32px Verdana';
+    propCtx.fillStyle = 'white';
+    propCtx.strokeStyle = 'black';
+    propCtx.lineWidth = 2;
+    propCtx.textAlign = 'center';
+
+    // Draw the timer to the "prop" canvas (the UI layer)
+    propCtx.strokeText(displayTime, x, y);
+    propCtx.fillText(displayTime, x, y);
+  }
+
   function countdown() {
     let time = 3;
     const x = bounds.right / 2 - 70;
@@ -184,6 +206,7 @@
   function update() {
     propCtx.clearRect(0, 0, bounds.right, bounds.bottom);
     updatePlayers();
+    drawTimer(); 
     drawPlayers();
     pickups.forEach(pickup => {
       updatePickup(pickup);
