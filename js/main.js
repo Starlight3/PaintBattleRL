@@ -14,7 +14,7 @@
         degree: 225,
         left: 37,
         right: 39,
-        color: '#FF5EAA',
+        color: 'purple',
         name: 'Player 1',
         //isComputer: true
       }),

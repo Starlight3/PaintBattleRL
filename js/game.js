@@ -3,6 +3,7 @@
     ctx = canvas.getContext('2d'),
     propCanvas = document.getElementById('Prop'),
     propCtx = propCanvas.getContext('2d'),
+        showAnnouncement = false, 
     pause = false,
     pickups = [],
     gameState = new PB.timer();
@@ -77,6 +78,7 @@
   }
 
   function startGame() {
+    showAnnouncement = true; 
     gameState.setInterval(update);
     gameState.setTimeout(endGame, GAME_INTERVAL);
     gameState.setInterval(function() {
@@ -129,12 +131,29 @@
     }
   }
 
+  function announcePlayers(){
+         const player1 = players.find(p => p.name === "Player 1");
+
+             if (!player1) return;
+
+
+    const x = bounds.right / 2;
+    const y = bounds.bottom ; // Position it 50px from the bottom
+    propCtx.font = 'bold 24px Verdana';
+    propCtx.fillStyle = player1.color; // Use the player's actual color!
+    propCtx.textAlign = 'center';
+
+    // Draw the announcement text
+    propCtx.fillText(`You are the ${player1.color} player`, x, y);
+  }
+
   function drawPlayers() {
     for (var i = players.length; i--; ) {
       var player = players[i],
         solved = player.resolve(player.radius),
         x = player.position.x | 0,
         y = player.position.y | 0;
+      
       //draw image
       propCtx.drawImage(
         PB.images.shadow,
@@ -208,6 +227,7 @@
     updatePlayers();
     drawTimer(); 
     drawPlayers();
+    announcePlayers();
     pickups.forEach(pickup => {
       updatePickup(pickup);
       drawPickup(pickup);
@@ -286,6 +306,7 @@
       name: 'Total',
       percent: result.reduce((acc, cur) => acc + cur.percent, 0),
     });
+    console.log(result.percent)
     return result;
   }
 };
