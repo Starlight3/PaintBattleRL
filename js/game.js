@@ -223,11 +223,13 @@
   }
 
   function update() {
+    //announcePlayers();
+
     propCtx.clearRect(0, 0, bounds.right, bounds.bottom);
     updatePlayers();
     drawTimer(); 
     drawPlayers();
-    announcePlayers();
+
     pickups.forEach(pickup => {
       updatePickup(pickup);
       drawPickup(pickup);
@@ -310,3 +312,10 @@
     return result;
   }
 };
+// At the end of game.js, replace:
+module.exports = isBlack;
+
+// With:
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = PB;
+}

@@ -82,3 +82,6 @@
   };
   return timer;
 })(window);
+if (typeof module !== 'undefined' && module.exports) {
+     module.exports = PB.timer;
+   }
