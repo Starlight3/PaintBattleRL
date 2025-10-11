@@ -1,5 +1,5 @@
-﻿PB.timer = (function({ requestAnimationFrame, cancelAnimationFrame }) {
-  const fps60 = 1000 / 60;
+﻿﻿PB.timer = (function({ requestAnimationFrame, cancelAnimationFrame }) {
+  const fps60 = 1000 / 10;
 
   function moment(loop, fn, interval) {
     this.loop = loop;
@@ -15,7 +15,6 @@
     me.enabled = disable ? false : true;
     me.then = Date.now();
     me.moments = [];
-    me.time={elapsed:0}
     //bind loop to variable because of the scope in requestAnimationFrame call.
     me.boundLoop = me.loop.bind(me);
     me.queue();
@@ -34,7 +33,7 @@
       if (delta > me.interval) {
         //add the remaining delta for the next check
         me.then = me.now - (delta % me.interval);
-        me.time.elapsed+=me.interval;
+
         for (var i = me.moments.length; i--; ) {
           if (!me.enabled) return;
           var m = me.moments[i];
@@ -82,6 +81,3 @@
   };
   return timer;
 })(window);
-if (typeof module !== 'undefined' && module.exports) {
-     module.exports = PB.timer;
-   }

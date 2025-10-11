@@ -1,4 +1,4 @@
-﻿PB.startGame = function(bounds, players) {
+﻿﻿PB.startGame = function(bounds, players) {
   var canvas = document.getElementById('PB'),
     ctx = canvas.getContext('2d'),
     propCanvas = document.getElementById('Prop'),
