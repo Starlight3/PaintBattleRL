@@ -1,6 +1,8 @@
 // gameState.test.js
 
 // Mock the window object and animation frame functions
+// Regarding the beforeall(), PB.timer, could not be exported and used on each test file
+// so we need to have the implementation here and test the funciton
 global.window = {
   requestAnimationFrame: jest.fn((callback) => {
     return setTimeout(callback, 16);
