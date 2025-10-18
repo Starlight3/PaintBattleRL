@@ -26,6 +26,7 @@ logger = logging.getLogger('headless-dql')
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
 
+
 class DQN(nn.Module):
     def __init__(self, state_size, action_size):
         super(DQN, self).__init__()
@@ -37,6 +38,28 @@ class DQN(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         return self.fc3(x)
+
+
+class DuelingDQN(nn.Module):
+    def __init__(self, state_size, action_size):
+        super(DuelingDQN, self).__init__()
+        self.fc1 = nn.Linear(state_size, 64)
+        self.fc2 = nn.Linear(64, 64)
+        
+        # Split into value and advantage streams
+        self.value_stream = nn.Linear(64, 1)
+        self.advantage_stream = nn.Linear(64, action_size)
+        
+    def forward(self, x):
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        
+        value = self.value_stream(x)
+        advantage = self.advantage_stream(x)
+        
+        # Q(s,a) = V(s) + (A(s,a) - mean(A(s,a)))
+        q_values = value + (advantage - advantage.mean(dim=1, keepdim=True))
+        return q_values
 
 
 class DQNAgent:
@@ -369,6 +392,7 @@ class HeadlessBattlePainterRL:
                             # Receive game state with timeout
                             message = await asyncio.wait_for(websocket.recv(), timeout=5)
                             game_data = json.loads(message)
+                            # print (game_data.keys())
                             logger.debug(f"Received: {game_data['event']}")
                             
                             # Process game state
