@@ -81,9 +81,9 @@
     showAnnouncement = true; 
     gameState.setInterval(update);
     gameState.setTimeout(endGame, GAME_INTERVAL);
-    gameState.setInterval(function() {
-      pickups.push(new PB.pickup(bounds));
-    }, PICKUP_INTERVAL);
+    // gameState.setInterval(function() {
+    //   pickups.push(new PB.pickup(bounds));
+    // }, PICKUP_INTERVAL);
   }
 
   function endGame() {
@@ -125,19 +125,20 @@
       player.move(gameState);
       player.restrict(bounds);
 
-      if (player.canCollide) {
-        player.canCollide = false;
-        var collision = player.checkCircleCollision(players).collision,
-          j = collision.length;
-        player.canCollide = true;
+      // if (player.canCollide) {
+      //   player.canCollide = false;
+      //   var collision = player.checkCircleCollision(players).collision,
+      //     j = collision.length;
+      //   console.log(collision);
+      //   player.canCollide = true;
 
-        if (j) {
-          for (; j--; ) {
-            collision[j].jump(gameState);
-          }
-          player.jump(gameState);
-        }
-      }
+      //   if (j) {
+      //     for (; j--; ) {
+      //       collision[j].jump(gameState);
+      //     }
+      //     player.jump(gameState);
+      //   }
+      // }
     }
   }
 
