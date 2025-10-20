@@ -3,7 +3,7 @@
     midY = 300,
     bounds = {
       top: 0,
-      right: 800,
+      right: 600,
       bottom: 600,
       left: 0,
     },

@@ -331,6 +331,17 @@
     return result;
   }
 
+  function calculateCoverageFromFlatGrid(flatGrid) {
+    let paintedByThisPlayer = 0;
+    const totalPixels = flatGrid.length;
+
+    for (let cell of flatGrid) {
+      if (cell === 0) paintedByThisPlayer++;
+    }
+
+    return (paintedByThisPlayer / totalPixels) * 100;
+  }
+
   function getRgbDifference([r1, g1, b1], [r2, g2, b2]) {
     return Math.sqrt(Math.pow(r2 - r1, 2) + Math.pow(g2 - g1, 2) + Math.pow(b2 - b1, 2));
   }
