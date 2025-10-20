@@ -30,15 +30,48 @@ class HeadlessBattlePainters:
         self.grid_resolution = 30  # Each cell is 10x10 pixels
         self.grid_width = self.bounds["right"] // self.grid_resolution
         self.grid_height = self.bounds["bottom"] // self.grid_resolution
-        self.canvas = np.zeros((self.grid_height, self.grid_width), dtype=np.bool_)
+        # Canvas tracks painted cells by different players [1,2,3,4]
+        self.canvas = np.zeros((self.grid_height, self.grid_width), dtype=np.int8)
+        # self.canvas = np.zeros((self.grid_height, self.grid_width), dtype=np.bool_)
         
         # Player state
-        self.player = {
-        "x": random.randint(self.bounds["left"], self.bounds["right"]),
-        "y": random.randint(self.bounds["top"], self.bounds["bottom"]),
-        "degree": random.uniform(0, 360),  # Random angle in degrees
-        "canDraw": True
-    }
+        self.players = [
+            {
+                "x": 400 - 30,
+                "y": 300 - 30,
+                "degree": 225,
+                "canDraw": True,
+                "color": "purple",  # Player 1 (RL agent)
+                "name": "Player 1"
+            },
+            {
+                "x": 400 + 30,
+                "y": 300 - 30,
+                "degree": 315,
+                "canDraw": True,
+                "color": "#299EFE",  # Player 2 (computer)
+                "name": "Player 2",
+                "isComputer": True
+            },
+            {
+                "x": 400 - 30,
+                "y": 300 + 30,
+                "degree": 135,
+                "canDraw": True,
+                "color": "#FDBC56",  # Player 3 (computer)
+                "name": "Player 3",
+                "isComputer": True
+            },
+            {
+                "x": 400 + 30,
+                "y": 300 + 30,
+                "degree": 45,
+                "canDraw": True,
+                "color": "#67DB66",  # Player 4 (computer)
+                "name": "Player 4",
+                "isComputer": True
+            }
+        ]
         
         # Game state
         self.coverage = 0.0
@@ -132,23 +165,37 @@ class HeadlessBattlePainters:
             self.agent_connection = None
     
     def apply_action(self, action):
-        """Apply the agent's action to the game state"""
+        """Apply the agent's action to PLAYER 1 only"""
+        player = self.players[0]  # Only control player 1
+        
         if action == "LEFT":
-            self.player["degree"] = (self.player["degree"] - self.turn_speed) % 360
+            player["degree"] = (player["degree"] - self.turn_speed) % 360
         elif action == "RIGHT":
-            self.player["degree"] = (self.player["degree"] + self.turn_speed) % 360
+            player["degree"] = (player["degree"] + self.turn_speed) % 360
         elif action == "FORWARD":
-            # Keep current direction
             pass
     
-    def move_player(self):
-        """Move the player in its current direction"""
+    # TODO: This might not be used if we already have computer movement in code. Need to check
+    def move_computer_players(self):
+        """Move computer-controlled players randomly"""
+        import random
+        for i in range(1, 4):  # Players 2, 3, 4
+            player = self.players[i]
+            if player.get("isComputer", False):
+                # Random turn
+                turn = random.randint(-10, 10)
+                player["degree"] = (player["degree"] + turn) % 360
+    
+    def move_player(self, player_index):
+        """Move a specific player in its current direction"""
+        player = self.players[player_index]
+        
         # Convert degrees to radians
-        radian = (self.player["degree"] * math.pi) / 180
+        radian = (player["degree"] * math.pi) / 180
         
         # Calculate new position
-        new_x = self.player["x"] + math.cos(radian) * self.player_speed
-        new_y = self.player["y"] + math.sin(radian) * self.player_speed
+        new_x = player["x"] + math.cos(radian) * self.player_speed
+        new_y = player["y"] + math.sin(radian) * self.player_speed
         
         # Apply bounds
         new_x = max(self.bounds["left"] + self.player_radius, 
@@ -157,46 +204,63 @@ class HeadlessBattlePainters:
                    min(self.bounds["bottom"] - self.player_radius, new_y))
         
         # Update player position
-        self.player["x"] = new_x
-        self.player["y"] = new_y
+        player["x"] = new_x
+        player["y"] = new_y
     
-    def update_canvas(self):
-        """Update the canvas with player's paint"""
-        if not self.player["canDraw"]:
+    def update_canvas(self, player_index):
+        """Update the canvas with a specific player's paint"""
+        player = self.players[player_index]
+        
+        if not player["canDraw"]:
             return
         
         # Convert player position to grid coordinates
-        grid_x = int(self.player["x"] / self.grid_resolution)
-        grid_y = int(self.player["y"] / self.grid_resolution)
+        grid_x = int(player["x"] / self.grid_resolution)
+        grid_y = int(player["y"] / self.grid_resolution)
         
         # Calculate radius in grid cells
         grid_radius = int(self.player_radius / self.grid_resolution) + 1
         
         # Paint a circle around the player in the grid
+        # Mark with player_index + 1 (so player 0 paints value 1, etc.)
         for y in range(max(0, grid_y - grid_radius), min(self.grid_height, grid_y + grid_radius + 1)):
             for x in range(max(0, grid_x - grid_radius), min(self.grid_width, grid_x + grid_radius + 1)):
                 # Check if point is within circle radius
                 dx = (x - grid_x) * self.grid_resolution
                 dy = (y - grid_y) * self.grid_resolution
                 if dx*dx + dy*dy <= self.player_radius * self.player_radius:
-                    self.canvas[y, x] = True
+                    self.canvas[y, x] = player_index + 1  # Mark which player painted
+    
     
     def calculate_coverage(self):
-        """Calculate the percentage of canvas covered with paint"""
-        painted_cells = np.sum(self.canvas)
+        """Calculate the percentage of canvas covered by EACH player"""
+        # TODO: Opportunity here to boost our reward function by using coverage for each player
         total_cells = self.grid_width * self.grid_height
-        return (painted_cells / total_cells) * 100.0
+        
+        for player_idx in range(4):
+            painted_cells = np.sum(self.canvas == (player_idx + 1))
+            self.coverage[player_idx] = (painted_cells / total_cells) * 100.0
+        
+        return self.coverage[0]  # Return player 1's coverage for RL agent
+    
     
     def update_game_state(self):
         """Update the game state for one frame"""
-        # Move player
-        self.move_player()
+        # Move computer players first
+        # TODO game.js already moves computer players. This might not be needed. Commenting out for now.
+        # self.move_computer_players()
         
-        # Update canvas with new paint
-        self.update_canvas()
+        # Move all players
+        # TODO Should we move computer players here? They are already being move in the line above. Changing 4 players to 1.
+        for i in range(1):
+            self.move_player(i)
+        
+        # Update canvas with all players' paint
+        for i in range(4):
+            self.update_canvas(i)
         
         # Calculate coverage
-        self.coverage = self.calculate_coverage()
+        player1_coverage = self.calculate_coverage()
         
         # Update frame counter
         self.frame_counter += 1
@@ -208,18 +272,49 @@ class HeadlessBattlePainters:
     def reset_game(self):
         """Reset the game state"""
         # Reset canvas
-        self.canvas = np.zeros((self.grid_height, self.grid_width), dtype=np.bool_)
+        self.canvas = np.zeros((self.grid_height, self.grid_width), dtype=np.int8)
         
-        # Reset player
-        self.player = {
-            "x": self.bounds["right"] // 2,
-            "y": self.bounds["bottom"] // 2,
-            "degree": 225,
-            "canDraw": True,
-        }
+        # Reset all players to starting positions
+        self.players = [
+            {
+                "x": 400 - 30,
+                "y": 300 - 30,
+                "degree": 225,
+                "canDraw": True,
+                "color": "purple",
+                "name": "Player 1"
+            },
+            {
+                "x": 400 + 30,
+                "y": 300 - 30,
+                "degree": 315,
+                "canDraw": True,
+                "color": "#299EFE",
+                "name": "Player 2",
+                "isComputer": True
+            },
+            {
+                "x": 400 - 30,
+                "y": 300 + 30,
+                "degree": 135,
+                "canDraw": True,
+                "color": "#FDBC56",
+                "name": "Player 3",
+                "isComputer": True
+            },
+            {
+                "x": 400 + 30,
+                "y": 300 + 30,
+                "degree": 45,
+                "canDraw": True,
+                "color": "#67DB66",
+                "name": "Player 4",
+                "isComputer": True
+            }
+        ]
         
         # Reset game state
-        self.coverage = 0.0
+        self.coverage = [0.0, 0.0, 0.0, 0.0]
         self.frame_counter = 0
         self.game_over = False
     
@@ -230,9 +325,10 @@ class HeadlessBattlePainters:
         
         initial_state = {
             "event": "INITIAL_STATE",
-            "player": self.player,
+            "player": self.players[0],  # Only send Player 1's state
             "coverage": 0,
-            "canvas": self.canvas.tolist(),  # Convert numpy array to list for JSON serialization
+            "canvas": self.canvas.tolist(),
+            "all_players": self.players  # Optional: send all player positions
         }
         
         try:
@@ -248,9 +344,10 @@ class HeadlessBattlePainters:
         
         state_update = {
             "event": "STATE_UPDATE",
-            "player": self.player,
-            "coverage": self.coverage,
-            "canvas": self.canvas.tolist(), 
+            "player": self.players[0],  # Only Player 1 (RL agent)
+            "coverage": self.coverage[0],  # Player 1's coverage
+            "canvas": self.canvas.tolist(),
+            "all_players": self.players  # Optional: all player positions
         }
         
         try:
@@ -265,12 +362,14 @@ class HeadlessBattlePainters:
         
         game_over = {
             "event": "GAME_OVER",
-            "coverage": self.coverage
+            "coverage": self.coverage[0],  # Player 1's coverage
+            "all_coverage": self.coverage  # All players' coverage
         }
         
         try:
             await self.agent_connection.send(json.dumps(game_over))
-            logger.info(f"Game over sent with coverage: {self.coverage:.2f}%")
+            logger.info(f"Game over - P1: {self.coverage[0]:.2f}%, P2: {self.coverage[1]:.2f}%, "
+                       f"P3: {self.coverage[2]:.2f}%, P4: {self.coverage[3]:.2f}%")
         except Exception as e:
             logger.error(f"Error sending game over: {e}")
     
