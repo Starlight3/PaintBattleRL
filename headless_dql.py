@@ -288,7 +288,7 @@ class HeadlessBattlePainterRL:
             # Use game data to get canvas state
             self.canvas = game_data["canvas"]
             # Convert canvas to numpy array
-            self.canvas = np.array(game_data["canvas"], dtype=np.bool_)
+            self.canvas = np.array(game_data["canvas"], dtype=np.int8)
             # self.sync_canvas(player['x'], player['y'])
             
             # Calculate density metrics
@@ -311,6 +311,7 @@ class HeadlessBattlePainterRL:
 
     def calculate_reward(self, current_coverage, previous_coverage, local_density, medium_density, far_density, overall_density):
         """Calculate reward based on coverage difference and local density"""
+        # TODO: Figure out how to use opponents' densities for reward calculation
         # Basic reward is the improvement in coverage
         coverage_reward = (current_coverage - previous_coverage) * 100
         
@@ -384,7 +385,7 @@ class HeadlessBattlePainterRL:
                     self.previous_coverage = 0
                     
                     # Reset canvas at the beginning of each episode
-                    self.canvas = np.zeros((self.grid_height, self.grid_width), dtype=np.bool_)
+                    self.canvas = np.zeros((self.grid_height, self.grid_width), dtype=np.int8)
                     
                     # Game session loop
                     while not self.done:

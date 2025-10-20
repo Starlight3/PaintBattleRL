@@ -74,7 +74,7 @@ class HeadlessBattlePainters:
         ]
         
         # Game state
-        self.coverage = 0.0
+        self.coverage = [0.0, 0.0, 0.0, 0.0]
         self.frame_counter = 0
         self.game_over = False
         self.max_frames = self.game_duration // 10  # 10ms per frame
@@ -247,12 +247,10 @@ class HeadlessBattlePainters:
     def update_game_state(self):
         """Update the game state for one frame"""
         # Move computer players first
-        # TODO game.js already moves computer players. This might not be needed. Commenting out for now.
-        # self.move_computer_players()
+        self.move_computer_players()
         
         # Move all players
-        # TODO Should we move computer players here? They are already being move in the line above. Changing 4 players to 1.
-        for i in range(1):
+        for i in range(4):
             self.move_player(i)
         
         # Update canvas with all players' paint
