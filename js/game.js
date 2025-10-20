@@ -1,4 +1,4 @@
-﻿﻿PB.startGame = function(bounds, players) {
+﻿PB.startGame = function(bounds, players) {
   var canvas = document.getElementById('PB'),
     ctx = canvas.getContext('2d'),
     propCanvas = document.getElementById('Prop'),
@@ -301,6 +301,34 @@
     return rgbaList;
   }
 
+  function reshapeFlatArrayTo2D(flatArray, width) {
+    const grid2D = [];
+    for (let i = 0; i < flatArray.length; i += width) {
+      grid2D.push(flatArray.slice(i, i + width));
+    }
+    return grid2D;
+  }
+
+  function imageDataToPlayerGridFromRgbaList(rgbaList, players, playerIndex, strideX, strideY, width, height) {
+    const playerColor = hexToRgb(players[playerIndex].color);
+    const result = [];
+
+    for (let y = 0; y < height; y += strideY) {
+      for (let x = 0; x < width; x += strideX) {
+        const index = y * width + x;
+        const rgba = rgbaList[index];
+
+        if (!rgba || rgba[3] === 0 || isBlack(rgba)) {
+          result.push(0); // unpainted
+        } else if (getRgbDifference(playerColor, rgba.slice(0, 3)) < 30) {
+          result.push(1); // painted by this player
+        } else {
+          result.push(2); // painted by others
+        }
+      }
+    }
+  }
+
   function getRgbDifference([r1, g1, b1], [r2, g2, b2]) {
     return Math.sqrt(Math.pow(r2 - r1, 2) + Math.pow(g2 - g1, 2) + Math.pow(b2 - b1, 2));
   }
@@ -350,10 +378,10 @@
     return result;
   }
 };
-// At the end of game.js, replace:
-module.exports = isBlack;
+// // At the end of game.js, replace:
+// module.exports = isBlack;
 
-// With:
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = PB;
-}
+// // With:
+// if (typeof module !== 'undefined' && module.exports) {
+//   module.exports = PB;
+// }
