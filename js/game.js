@@ -1,16 +1,15 @@
-﻿PB.FAST_MODE = true; // Enable fast mode for training
-
-PB.startGame = function(bounds, players) {
+﻿﻿PB.startGame = function(bounds, players) {
   var canvas = document.getElementById('PB'),
     ctx = canvas.getContext('2d'),
     propCanvas = document.getElementById('Prop'),
     propCtx = propCanvas.getContext('2d'),
+        showAnnouncement = false, 
     pause = false,
-    gameState = new PB.timer(),
-    frameCounter = 0;
+    pickups = [],
+    gameState = new PB.timer();
 
-  // Shorter game duration for faster training
-  const GAME_INTERVAL = PB.FAST_MODE ? 30 * 1000 : 90 * 1000;
+  const GAME_INTERVAL = 90 * 1000;
+  const PICKUP_INTERVAL = 25 * 1000;
 
   init();
   function init() {
@@ -30,12 +29,29 @@ PB.startGame = function(bounds, players) {
     };
   }
 
-  function countdown() {
-    if (PB.FAST_MODE) {
-      startGame();
-      return;
-    }
+  function drawTimer() {
+    // Calculate remaining time from the total GAME_INTERVAL
+    const elapsedMs = gameState.time.elapsed || 0;
+    const remainingSeconds = Math.ceil((GAME_INTERVAL - elapsedMs) / 1000);
     
+    // Ensure the timer doesn't display a negative number
+    const displayTime = Math.max(0, remainingSeconds);
+
+    // Set the position and style for the timer text
+    const x = bounds.right / 2; // Center of the screen
+    const y = 40;               // 40 pixels from the top
+    propCtx.font = 'bold 32px Verdana';
+    propCtx.fillStyle = 'white';
+    propCtx.strokeStyle = 'black';
+    propCtx.lineWidth = 2;
+    propCtx.textAlign = 'center';
+
+    // Draw the timer to the "prop" canvas (the UI layer)
+    propCtx.strokeText(displayTime, x, y);
+    propCtx.fillText(displayTime, x, y);
+  }
+
+  function countdown() {
     let time = 3;
     const x = bounds.right / 2 - 70;
     const y = bounds.bottom / 2 + 70;
@@ -62,31 +78,35 @@ PB.startGame = function(bounds, players) {
   }
 
   function startGame() {
-    // Use higher FPS in fast mode
-    const fps = PB.FAST_MODE ? 10 : 30;
-    gameState.setInterval(update, 1000/fps);
+    showAnnouncement = true; 
+    gameState.setInterval(update);
     gameState.setTimeout(endGame, GAME_INTERVAL);
+    gameState.setInterval(function() {
+      pickups.push(new PB.pickup(bounds));
+    }, PICKUP_INTERVAL);
   }
 
   function endGame() {
     gameState.stop();
     const result = getGameResult();
     propCtx.clearRect(0, 0, bounds.right, bounds.bottom);
-    
-    // Display final score only in normal mode
-    if (PB.FAST_MODE) {
-      propCtx.font = '32px Verdana';
-      propCtx.fillStyle = '#000';
-      propCtx.fillText(`Coverage: ${result[0].percent}%`, bounds.right / 2 - 120, bounds.bottom / 2);
-    }
-    
-    // Send final result to RL agent
-    if (PB.sendGameState) {
-      PB.sendGameState({
-        event: 'GAME_OVER',
-        coverage: result[0].percent
-      });
-    }
+    const margin = 96;
+    propCtx.drawImage(
+      PB.images.scroll,
+      margin,
+      margin,
+      bounds.right - margin * 2,
+      bounds.bottom - margin * 2
+    );
+
+    propCtx.font = '32px Verdana';
+    const theX = bounds.right / 2 - 180;
+    result.forEach((x, i) => {
+      const theY = i * 48 + 210;
+      propCtx.fillStyle = x.color || '#000';
+      propCtx.fillText(`${x.name}:`, theX, theY);
+      propCtx.fillText(`${x.percent}% ${x.winner ? '🏆' : ''}`, theX + 250, theY);
+    });
   }
 
   function updatePlayers() {
@@ -94,7 +114,37 @@ PB.startGame = function(bounds, players) {
       var player = players[i];
       player.move(gameState);
       player.restrict(bounds);
+
+      if (player.canCollide) {
+        player.canCollide = false;
+        var collision = player.checkCircleCollision(players).collision,
+          j = collision.length;
+        player.canCollide = true;
+
+        if (j) {
+          for (; j--; ) {
+            collision[j].jump(gameState);
+          }
+          player.jump(gameState);
+        }
+      }
     }
+  }
+
+  function announcePlayers(){
+         const player1 = players.find(p => p.name === "Player 1");
+
+             if (!player1) return;
+
+
+    const x = bounds.right / 2;
+    const y = bounds.bottom ; // Position it 50px from the bottom
+    propCtx.font = 'bold 24px Verdana';
+    propCtx.fillStyle = player1.color; // Use the player's actual color!
+    propCtx.textAlign = 'center';
+
+    // Draw the announcement text
+    propCtx.fillText(`You are the ${player1.color} player`, x, y);
   }
 
   function drawPlayers() {
@@ -103,6 +153,7 @@ PB.startGame = function(bounds, players) {
         solved = player.resolve(player.radius),
         x = player.position.x | 0,
         y = player.position.y | 0;
+      
       //draw image
       propCtx.drawImage(
         PB.images.shadow,
@@ -119,6 +170,15 @@ PB.startGame = function(bounds, players) {
         player.radius * 2
       );
 
+      if (player.stunned) {
+        propCtx.drawImage(
+          PB.images.plaster,
+          x - player.radius / 2,
+          y - player.radius,
+          player.radius,
+          player.radius
+        );
+      }
 
       //draw heading direction line
       propCtx.beginPath();
@@ -134,93 +194,47 @@ PB.startGame = function(bounds, players) {
     }
   }
 
-  // function drawDebug() {
-  //   propCtx.fillStyle = '#f00';
-  //   propCtx.font = '11px Verdana';
+  function updatePickup(pickup) {
+    var collisions = pickup.checkCircleCollision(players);
 
-  //   for (var i = 0, l = gameState.moments.length; i < l; i++) {
-  //     propCtx.fillText(gameState.moments[i].delta | 0, 10, i * 15 + 30);
-  //   }
-  // }
-
-  function reshapeFlatArrayTo2D(flatArray, width) {
-    const grid2D = [];
-    for (let i = 0; i < flatArray.length; i += width) {
-      grid2D.push(flatArray.slice(i, i + width));
+    if (collisions.collision.length) {
+      pickup.get(collisions, gameState, ctx, bounds);
+      pickups.splice(pickups.indexOf(pickup), 1);
     }
-    return grid2D;
   }
 
-  // function printGrid2D(grid2D) {
-  //   for (const row of grid2D) {
-  //     console.log(row.map(cell => cell.toString()).join(' '));
-  //   }
-  // }
-
-  function imageDataToPlayerGridFromRgbaList(rgbaList, players, playerIndex, strideX, strideY, width, height) {
-    const playerColor = hexToRgb(players[playerIndex].color);
-    const result = [];
-
-    for (let y = 0; y < height; y += strideY) {
-      for (let x = 0; x < width; x += strideX) {
-        const index = y * width + x;
-        const rgba = rgbaList[index];
-
-        if (!rgba || rgba[3] === 0 || isBlack(rgba)) {
-          result.push(0); // unpainted
-        } else if (getRgbDifference(playerColor, rgba.slice(0, 3)) < 30) {
-          result.push(1); // painted by this player
-        } else {
-          result.push(2); // painted by others
-        }
-      }
-    }
-
-    return result;
+  function drawPickup(pickup) {
+    propCtx.drawImage(
+      PB.images.pickup,
+      pickup.position.x - pickup.radius,
+      pickup.position.y - pickup.radius,
+      pickup.radius * 2,
+      pickup.radius * 2
+    );
   }
 
-  function calculateCoverageFromFlatGrid(flatGrid) {
-    let paintedByThisPlayer = 0;
-    const totalPixels = flatGrid.length;
+  function drawDebug() {
+    propCtx.fillStyle = '#f00';
+    propCtx.font = '11px Verdana';
 
-    for (let cell of flatGrid) {
-      if (cell === 0) paintedByThisPlayer++;
+    for (var i = 0, l = gameState.moments.length; i < l; i++) {
+      propCtx.fillText(gameState.moments[i].delta | 0, 10, i * 15 + 30);
     }
-
-    return (paintedByThisPlayer / totalPixels) * 100;
   }
-  let frameCount = 0;
-  const frameSkip = 20;
-  const strideX = 20;
 
   function update() {
+    //announcePlayers();
+
     propCtx.clearRect(0, 0, bounds.right, bounds.bottom);
     updatePlayers();
+    drawTimer(); 
     drawPlayers();
+
+    pickups.forEach(pickup => {
+      updatePickup(pickup);
+      drawPickup(pickup);
+    });
     // drawDebug();
-    if(PB.sendGameState) {
-      frameCount++;
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      
-      const rgbaList = imageDataToRgbaList(imageData.data);
-      const playerIndex = 0;
-      //20 is the stride, to reduce the array size, to improve frame processing speed
-      const flatGrid = imageDataToPlayerGridFromRgbaList(rgbaList, players, playerIndex, strideX, strideX, canvas.width, canvas.height);
-      const grid2D = reshapeFlatArrayTo2D(flatGrid, Math.floor(canvas.width / 20));
-      const coverage = calculateCoverageFromFlatGrid(flatGrid);
-      
-      PB.sendGameState({
-        event: 'STATE_UPDATE',
-        player: {
-          x: players[playerIndex].position.x,
-          y: players[playerIndex].position.y,
-          degree: ((players[playerIndex].degree % 360) +360) % 360,
-          canDraw: players[playerIndex].canDraw()
-        },
-        coverage:coverage, 
-        canvas: grid2D
-        });
-    }
   }
 
   function rgbToHex(r, g, b) {
@@ -294,6 +308,14 @@ PB.startGame = function(bounds, players) {
       name: 'Total',
       percent: result.reduce((acc, cur) => acc + cur.percent, 0),
     });
+    console.log(result.percent)
     return result;
   }
 };
+// At the end of game.js, replace:
+module.exports = isBlack;
+
+// With:
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = PB;
+}
