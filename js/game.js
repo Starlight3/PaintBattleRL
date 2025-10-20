@@ -29,17 +29,17 @@
     };
   }
 
-  function drawTimer() {
+ function drawTimer() {
     // Calculate remaining time from the total GAME_INTERVAL
-    const elapsedMs = gameState.time.elapsed || 0;
+    const elapsedMs = (gameState.time && gameState.time.elapsed) || 0;
     const remainingSeconds = Math.ceil((GAME_INTERVAL - elapsedMs) / 1000);
     
     // Ensure the timer doesn't display a negative number
     const displayTime = Math.max(0, remainingSeconds);
 
     // Set the position and style for the timer text
-    const x = bounds.right / 2; // Center of the screen
-    const y = 40;               // 40 pixels from the top
+    const x = bounds.right / 2;
+    const y = 40;
     propCtx.font = 'bold 32px Verdana';
     propCtx.fillStyle = 'white';
     propCtx.strokeStyle = 'black';
@@ -49,7 +49,7 @@
     // Draw the timer to the "prop" canvas (the UI layer)
     propCtx.strokeText(displayTime, x, y);
     propCtx.fillText(displayTime, x, y);
-  }
+}
 
   function countdown() {
     let time = 3;
@@ -107,7 +107,17 @@
       propCtx.fillText(`${x.name}:`, theX, theY);
       propCtx.fillText(`${x.percent}% ${x.winner ? '🏆' : ''}`, theX + 250, theY);
     });
+
+    // Send final result to RL agent
+    if (PB.sendGameState) {
+      PB.sendGameState({
+        event: 'GAME_OVER',
+        coverage: result[0].percent
+      });
+    }
+  
   }
+    
 
   function updatePlayers() {
     for (var i = players.length; i--; ) {
@@ -221,6 +231,9 @@
       propCtx.fillText(gameState.moments[i].delta | 0, 10, i * 15 + 30);
     }
   }
+  let frameCount=0
+  const framSkip=20;
+  const strideX=20;
 
   function update() {
     //announcePlayers();
@@ -235,6 +248,31 @@
       drawPickup(pickup);
     });
     // drawDebug();
+
+   if(PB.sendGameState) {
+      frameCount++;
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+      const rgbaList = imageDataToRgbaList(imageData.data);
+      const playerIndex = 0;
+      //20 is the stride, to reduce the array size, to improve frame processing speed
+      const flatGrid = imageDataToPlayerGridFromRgbaList(rgbaList, players, playerIndex, strideX, strideX, canvas.width, canvas.height);
+      const grid2D = reshapeFlatArrayTo2D(flatGrid, Math.floor(canvas.width / 20));
+      const coverage = calculateCoverageFromFlatGrid(flatGrid);
+
+      PB.sendGameState({
+        event: 'STATE_UPDATE',
+        player: {
+          x: players[playerIndex].position.x,
+          y: players[playerIndex].position.y,
+          degree: ((players[playerIndex].degree % 360) +360) % 360,
+          canDraw: players[playerIndex].canDraw()
+        },
+        coverage:coverage, 
+        canvas: grid2D
+        });
+    }
+  
   }
 
   function rgbToHex(r, g, b) {
