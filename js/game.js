@@ -1,4 +1,4 @@
-﻿﻿PB.startGame = function(bounds, players) {
+﻿PB.startGame = function(bounds, players) {
   var canvas = document.getElementById('PB'),
     ctx = canvas.getContext('2d'),
     propCanvas = document.getElementById('Prop'),
@@ -8,7 +8,7 @@
     pickups = [],
     gameState = new PB.timer();
 
-  const GAME_INTERVAL = 90 * 1000;
+  const GAME_INTERVAL = 10 * 1000;
   const PICKUP_INTERVAL = 25 * 1000;
 
   init();
@@ -31,7 +31,13 @@
 
  function drawTimer() {
     // Calculate remaining time from the total GAME_INTERVAL
-    const elapsedMs = (gameState.time && gameState.time.elapsed) || 0;
+    // const elapsedMs = (gameState.time && gameState.time.elapsed) || 0;
+    if (!this.gameStartTime) {
+      this.gameStartTime = Date.now();
+  }
+  
+    // Calculate elapsed time since game start
+    const elapsedMs = Date.now() - this.gameStartTime;
     const remainingSeconds = Math.ceil((GAME_INTERVAL - elapsedMs) / 1000);
     
     // Ensure the timer doesn't display a negative number
@@ -79,6 +85,7 @@
 
   function startGame() {
     showAnnouncement = true; 
+    // drawTimer.gameStartTime = Date.now();
     gameState.setInterval(update);
     gameState.setTimeout(endGame, GAME_INTERVAL);
     // gameState.setInterval(function() {
@@ -86,38 +93,106 @@
     // }, PICKUP_INTERVAL);
   }
 
-  function endGame() {
-    gameState.stop();
-    const result = getGameResult();
-    propCtx.clearRect(0, 0, bounds.right, bounds.bottom);
-    const margin = 96;
-    propCtx.drawImage(
-      PB.images.scroll,
-      margin,
-      margin,
-      bounds.right - margin * 2,
-      bounds.bottom - margin * 2
-    );
+  // function endGame() {
+  //   gameState.stop();
+  //   const result = getGameResult();
+  //   propCtx.clearRect(0, 0, bounds.right, bounds.bottom);
+  //   const margin = 96;
+  //   propCtx.drawImage(
+  //     PB.images.scroll,
+  //     margin,
+  //     margin,
+  //     bounds.right - margin * 2,
+  //     bounds.bottom - margin * 2
+  //   );
 
-    propCtx.font = '32px Verdana';
-    const theX = bounds.right / 2 - 180;
-    result.forEach((x, i) => {
-      const theY = i * 48 + 210;
-      propCtx.fillStyle = x.color || '#000';
-      propCtx.fillText(`${x.name}:`, theX, theY);
-      propCtx.fillText(`${x.percent}% ${x.winner ? '🏆' : ''}`, theX + 250, theY);
-    });
+  //   propCtx.font = '32px Verdana';
+  //   const theX = bounds.right / 2 - 180;
+  //   result.forEach((x, i) => {
+  //     const theY = i * 48 + 210;
+  //     propCtx.fillStyle = x.color || '#000';
+  //     propCtx.fillText(`${x.name}:`, theX, theY);
+  //     propCtx.fillText(`${x.percent}% ${x.winner ? '🏆' : ''}`, theX + 250, theY);
+  //   });
 
-    // Send final result to RL agent
-    if (PB.sendGameState) {
-      PB.sendGameState({
-        event: 'GAME_OVER',
-        coverage: result[0].percent
-      });
-    }
+  //   // Send final result to RL agent
+  //   if (PB.sendGameState) {
+  //     PB.sendGameState({
+  //       event: 'GAME_OVER',
+  //       coverage: result[0].percent
+  //     });
+  //   }
   
-  }
+  // }
     
+
+function endGame() {
+  gameState.stop();
+  const result = getGameResult();
+  
+  // Clear both canvases
+  propCtx.clearRect(0, 0, bounds.right, bounds.bottom);
+  ctx.clearRect(0, 0, bounds.right, bounds.bottom);
+  
+  // Draw semi-transparent background
+  propCtx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+  propCtx.fillRect(0, 0, bounds.right, bounds.bottom);
+  
+  // Draw title
+  propCtx.font = 'bold 48px Verdana';
+  propCtx.fillStyle = 'white';
+  propCtx.strokeStyle = 'black';
+  propCtx.lineWidth = 4;
+  propCtx.textAlign = 'center';
+  const titleY = 100;
+  propCtx.strokeText('GAME OVER', bounds.right / 2, titleY);
+  propCtx.fillText('GAME OVER', bounds.right / 2, titleY);
+  
+  // Draw results
+  propCtx.font = 'bold 32px Verdana';
+  propCtx.textAlign = 'left';
+  const startX = 100;
+  const startY = 200;
+  const lineHeight = 50;
+  
+  result.forEach((player, i) => {
+      if (player.name === 'Total') return; // Skip total row
+      
+      const y = startY + (i * lineHeight);
+      
+      // Draw colored circle
+      propCtx.fillStyle = player.color || '#000';
+      propCtx.beginPath();
+      propCtx.arc(startX, y - 10, 15, 0, 2 * Math.PI);
+      propCtx.fill();
+      
+      // Draw player name
+      propCtx.fillStyle = 'white';
+      propCtx.strokeStyle = 'black';
+      propCtx.lineWidth = 3;
+      propCtx.strokeText(`${player.name}:`, startX + 30, y);
+      propCtx.fillText(`${player.name}:`, startX + 30, y);
+      
+      // Draw percentage with trophy if winner
+      const percentText = `${player.percent}% ${player.winner ? '🏆' : ''}`;
+      propCtx.strokeText(percentText, startX + 250, y);
+      propCtx.fillText(percentText, startX + 250, y);
+  });
+  
+  // // Draw restart instruction
+  propCtx.font = '20px Verdana';
+  propCtx.textAlign = 'center';
+  propCtx.fillStyle = 'yellow';
+  propCtx.fillText('Refresh to restart', bounds.right / 2, bounds.bottom - 50);
+
+  // Send final result to RL agent
+  if (PB.sendGameState) {
+      PB.sendGameState({
+          event: 'GAME_OVER',
+          coverage: result[0].percent
+      });
+  }
+}
 
   function updatePlayers() {
     for (var i = players.length; i--; ) {
@@ -142,21 +217,47 @@
     }
   }
 
-  function announcePlayers(){
-         const player1 = players.find(p => p.name === "Player 1");
+  // function announcePlayers(){
+  //        const player1 = players.find(p => p.name === "Player 1");
 
-             if (!player1) return;
+  //            if (!player1) return;
 
 
-    const x = bounds.right / 2;
-    const y = bounds.bottom ; // Position it 50px from the bottom
-    propCtx.font = 'bold 24px Verdana';
-    propCtx.fillStyle = player1.color; // Use the player's actual color!
-    propCtx.textAlign = 'center';
+  //   const x = bounds.right / 2;
+  //   const y = bounds.bottom ; // Position it 50px from the bottom
+  //   propCtx.font = 'bold 24px Verdana';
+  //   propCtx.fillStyle = player1.color; // Use the player's actual color!
+  //   propCtx.textAlign = 'center';
 
-    // Draw the announcement text
-    propCtx.fillText(`You are the ${player1.color} player`, x, y);
-  }
+  //   // Draw the announcement text
+  //   propCtx.fillText(`You are the ${player1.color} player`, x, y);
+  // }
+
+  function announcePlayers() {
+    const startX = 10;
+    const startY = 30;
+    const lineHeight = 25;
+    
+    propCtx.font = 'bold 16px Verdana';
+    propCtx.textAlign = 'left';
+    
+    players.forEach((player, index) => {
+        const y = startY + (index * lineHeight);
+        
+        // Draw colored circle
+        propCtx.fillStyle = player.color;
+        propCtx.beginPath();
+        propCtx.arc(startX + 8, y - 5, 8, 0, 2 * Math.PI);
+        propCtx.fill();
+        
+        // Draw player name
+        propCtx.fillStyle = 'white';
+        propCtx.strokeStyle = 'black';
+        propCtx.lineWidth = 3;
+        propCtx.strokeText(player.name, startX + 25, y);
+        propCtx.fillText(player.name, startX + 25, y);
+    });
+}
 
   function drawPlayers() {
     for (var i = players.length; i--; ) {
@@ -237,11 +338,12 @@
   const strideX=20;
 
   function update() {
-    //announcePlayers();
+    
 
     propCtx.clearRect(0, 0, bounds.right, bounds.bottom);
     updatePlayers();
     drawTimer(); 
+    announcePlayers();
     drawPlayers();
 
     pickups.forEach(pickup => {
